@@ -6,7 +6,6 @@ const Bookmarks = () => {
     return (
         <>
             <BookmarkList />
-            <Footer />
         </>
     )
 }

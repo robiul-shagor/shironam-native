@@ -1,19 +1,21 @@
 import { SafeAreaView, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { HeaderRight, SubCategoryCard } from '../../components';
+import { HeaderRight, CategoryAllCard } from '../../components';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 
 
-export default function SubCategoryPage() {
+export default function CategoryAllPage() {
     const { slug } = useLocalSearchParams();
     const router = useRouter();
     const formattedTitle = slug
                             .split('-')
                             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                             .join(' ');
-    
+
     const colorScheme = useColorScheme();
+
+    
 
     return(
         <>
@@ -26,7 +28,7 @@ export default function SubCategoryPage() {
                             <HeaderRight />
                         ),
                         headerLeft: () => (
-                            <TouchableOpacity onPress={()=> router.back() } style={styles.headerLeft}>
+                            <TouchableOpacity onPress={()=> router.push('/allCategory') } style={styles.headerLeft}>
                                 <FontAwesomeIcon size={18} icon={faAngleLeft} color={colorScheme === 'light' ? 'black' : 'white'} />
                             </TouchableOpacity>
                         ), 
@@ -36,7 +38,7 @@ export default function SubCategoryPage() {
                     }}
                 />
 
-                <SubCategoryCard />
+                <CategoryAllCard />
             </SafeAreaView>
         </>
     );

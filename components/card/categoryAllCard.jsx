@@ -1,8 +1,9 @@
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, Alert, Share, Image, useColorScheme, Modal } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, Share, Alert, Image, useColorScheme, Modal } from 'react-native'
 import React, { useState, useCallback, useRef } from 'react'
 import ImageBlurLoading from 'react-native-image-blur-loading'
 import UserQuery from '../../query/userQuery'
 import { images } from '../../constants'
+import * as WebBrowser from 'expo-web-browser';
 import moment from 'moment/min/moment-with-locales';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faClock } from '@fortawesome/free-solid-svg-icons';
@@ -10,35 +11,43 @@ import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { faShare } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark } from '@fortawesome/free-solid-svg-icons';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
-import Breaking from '../body/breaking'
-import { Link } from 'expo-router'
+import Footer from '../body/footer'
+import { Link, useLocalSearchParams } from 'expo-router'
 import { useAuth } from '../../context/auth'
-import axios from '../../api/axios'
 import { WebView } from 'react-native-webview';
 
-const UserCard = () => {
-  const colorScheme = useColorScheme();
-  const query = ''; 
-  const type = ''; 
+const CategoryAllCard = () => {
+  const { slug } = useLocalSearchParams();
+  const query = slug;
+
+  const type = 'no_filter';
   const [pageNumber, setPageNumber] = useState(1)
   const [refreshing, setRefreshing] = useState(false)
-  const { user, langMode } = useAuth();
-  const [bookmarkedItems, setBookmarkedItems] = useState([]);
+  const colorScheme = useColorScheme();
   const themeContainerStyle =
-    colorScheme === 'light' ? styles.lightContainer : styles.darkContainer;
+  colorScheme === 'light' ? styles.lightContainer : styles.darkContainer;
   const themeTextStyle = colorScheme === 'light' ? styles.lightThemeText : styles.darkThemeText;
   const themeIconStyle = colorScheme === 'light' ? 'black' : 'white';
 
   const { loading, error, news, maxPage, noMore } = UserQuery(query, pageNumber, type);
+  const {langMode, user} = useAuth();
+
 
   const [modalVisible, setModalVisible] = useState(false);
   const [urlWeb, setUrlWeb] = useState('');
   const [viewableItems, setViewableItems] = useState([]);
 
+
   // make lowercase function
   const makeLowercase = ( item ) => {
     return item.split(" ").join("-").toLowerCase()
   }
+
+  //Open Link in popup
+  const openLink = async(e, url) => {
+    setModalVisible(true);
+    setUrlWeb(url);
+  };
 
   // Page refresh on swipe
   const onRefresh = useCallback(() => {
@@ -48,29 +57,8 @@ const UserCard = () => {
     }, 2000);
   }, []);
 
-  // Share Options
-  const socialShareHandle = async(e, item) => {
-    try {
-      const result = await Share.share({
-        message: langMode == 'BN' ? item.summary_bn : item.summary_en,
-        url: `https://shironam.netlify.app/news/${item.id}`
-      });
-
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // shared with activity type of result.activityType
-        } else {
-          // shared
-        }
-      } else if (result.action === Share.dismissedAction) {
-        // dismissed
-      }    
-    } catch(error) {
-      Alert.alert(error.message);
-    }
-  };  
-
-  // Bookmark Options
+  //Bookmark manage
+  const [bookmarkedItems, setBookmarkedItems] = useState([]);
   const bookmarkHandle = async(e, item) => {
     if( user?.token ) {
       const bookmarks = item.id;
@@ -100,11 +88,27 @@ const UserCard = () => {
     }
   };
 
-  //Open Link in popup
-  const openLink = async(e, url) => {
-    setModalVisible(true);
-    setUrlWeb(url);
-  };
+  // Share Options
+  const socialShareHandle = async(e, item) => {
+    try {
+      const result = await Share.share({
+        message: langMode == 'BN' ? item.summary_bn : item.summary_en,
+        url: `https://shironam.netlify.app/news/${item.id}`
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }    
+    } catch(error) {
+      Alert.alert(error.message);
+    }
+  };  
 
   // Card Items
   const CardItems = ({ item }) => {
@@ -164,14 +168,14 @@ const UserCard = () => {
         )}
 
         { item?.ads_image ? (
-            <Text className={`post-title font-bold text-md md:text-3xl mt-3 transition-al`} style={[styles.headingBold, themeTextStyle]}>{ langMode == 'BN' ? item.title : item.title}</Text>
+            <Text className="post-title font-semibold text-md md:text-3xl mt-3 transition-al" style={[styles.headingBold, themeTextStyle]}>{ langMode == 'BN' ? item.title : item.title}</Text>
         ) : (
-            <Text className={`post-title ${ viewableItems === item.id || item?.is_read ? '' : 'font-bold' } text-md md:text-3xl mt-3 transition-al`} style={[styles.headingBold, themeTextStyle]}>{ langMode == 'BN' ? item.summary_bn : item.summary_en}</Text>
+          <Text className={`post-title ${ viewableItems === item.id || item?.is_read ? '' : 'font-bold' } text-md md:text-3xl mt-3 transition-al`} style={[styles.headingBold, themeTextStyle]}>{ langMode == 'BN' ? item.summary_bn : item.summary_en}</Text>
         ) }
 
         { item.ads_image ? (
             <View style={styles.container}>
-              <Text style={[styles.linkText, themeTextStyle]}>
+              <Text style={[styles.sponsoredText, themeTextStyle]}>
                 {langMode == 'BN' ? 'সৌজন্যে:' : 'Sponsored by:'}{' '}
                 <Text style={[styles.linkText, themeTextStyle]}>{item.sponsor}</Text>
               </Text>
@@ -243,26 +247,19 @@ const UserCard = () => {
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <Text>{langMode == 'BN' ? 'Error' : 'ত্রুটি হচ্ছে...'}</Text>
           </View> : null
-        }          
-        
-        { noMore ? 
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text>{langMode == 'BN' ?  'আর কোন পোস্ট নেই' : 'No More Posts'}</Text>
-          </View> : null
-        }    
+        }     
       </>
     )
   }
 
   // Load More Elements
-  const loadMoreItems = () => {
+  const loadMoreItems = () => {    
     if (pageNumber >= maxPage) {
       // Don't load more posts if you've reached the limit
       return;
     }
     setPageNumber(pageNumber + 1);
   };
-  
 
   //On View item changed
   const onViewableItemsChanged = (info) => {
@@ -301,18 +298,13 @@ const UserCard = () => {
         onEndReached={loadMoreItems}
         onEndReachedThreshold={0.1}
         showsVerticalScrollIndicator={false}
-        ListHeaderComponent={
-          <Breaking />
-        }
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         ListEmptyComponent={
-          !loading && !error && news.length === 0 ? (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <Text>{langMode == 'BN' ? 'এখানে কোন পোস্ট নেই' : 'No Posts Available Here'}</Text>
-            </View>
-          ) : null
+          !loading && <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text>{langMode == 'BN' ?  'এখানে কোন পোস্ট নেই' : 'No Posts Available Here'}</Text>
+          </View>
         }
         viewabilityConfig={{viewAreaCoveragePercentThreshold: 50}}
         viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs.current}
@@ -339,7 +331,7 @@ const UserCard = () => {
   )
 }
 
-export default UserCard
+export default CategoryAllCard
 
 const styles = StyleSheet.create({
   container: {
@@ -470,11 +462,5 @@ const styles = StyleSheet.create({
   },
   darkThemeText: {
     color: '#FFFFFF'
-  },
-  nonViewableItem: {
-    fontWeight: 'bold'
-  }, 
-  viewableItem: {
-    fontWeight: 'normal'
   }
 })

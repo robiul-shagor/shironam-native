@@ -23,8 +23,4 @@ const Index = () => {
 
 export default Index
 
-const styles = StyleSheet.create({
-    parentContainer: {
-        paddingHorizontal: 15,
-    }
-})
+const styles = StyleSheet.create({})

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, useColorScheme } from 'react-native'
 import React from 'react'
 import { useAuth } from '../../context/auth'
 import { Link } from 'expo-router'
@@ -8,30 +8,31 @@ import { Breaking, AllCategory, Footer } from '../../components'
 
 const Index = () => {
     const { user, langMode } = useAuth();
+    const colorScheme = useColorScheme();
+    const bgColor = colorScheme === 'light' ? 'white' : '#272727';
+    const textColor = colorScheme === 'light' ? '#191919' : 'white';
     
     return (
         <>
             {
                 user?.token ? (
                     <ScrollView>
-                        <View style={styles.container}>
+                        <View>
                             <Breaking />
                             <AllCategory />
-                            <Footer />
                         </View>
                     </ScrollView>
                 ) : (
                     <ScrollView>
-                        <View style={styles.container}>
+                        <View className="h-screen" style={[styles.container, {backgroundColor: bgColor}]}>
                             <View style={styles.iconStyle}>
                                 <FontAwesomeIcon icon={faCompass} size={ 40 } color="#f9020b" />
                             </View>
                             <View style={styles.textContent}>
-                                <Text style={styles.paraText}>{langMode == 'BN'? 'সমস্ত বিভাগ দেখতে লগইন করুন' : 'Please login to view All Category'}</Text>
+                                <Text style={[styles.paraText, {color: textColor}]}>{langMode == 'BN'? 'সমস্ত বিভাগ দেখতে লগইন করুন' : 'Please login to view All Category'}</Text>
                                 <Link href="/login" style={styles.linkURL}><Text>Login</Text></Link>
                             </View>
                         </View>
-                        <Footer />
                     </ScrollView>
                 )
             }
@@ -56,12 +57,8 @@ const styles = StyleSheet.create({
         fontSize: 16
     },
     container: {
-        alignItems: 'center', 
-        justifyContent: 'center',
-        backgroundColor: 'white',
-        height: '100%',
-        flex: 1,
-        paddingVertical: 100,
+        alignItems: 'center',
+        justifyContent: 'center', 
     },
     textContent: {
         alignItems: 'center',
@@ -73,6 +70,7 @@ const styles = StyleSheet.create({
     },
     iconStyle: {
         opacity: 0.6,
-        marginBottom: 15
+        marginBottom: 15,
+        textAlign: 'center'
     }
 })

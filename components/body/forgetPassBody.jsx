@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, useColorScheme } from 'react-native'
 import React, { useState } from 'react'
 import axios from '../../api/axios';
 import { useRouter } from 'expo-router';
@@ -13,6 +13,9 @@ const ForgetPassBody = () => {
 
     const {langMode} = useAuth();
     const router = useRouter();
+    const colorScheme = useColorScheme();
+    const bgColor = colorScheme === 'light' ? 'white' : '#272727';
+    const textColor = colorScheme === 'light' ? '#191919' : 'white';
     
     const handleResetPass = async()=> {
         setProcessing(true)
@@ -42,17 +45,17 @@ const ForgetPassBody = () => {
     };
 
     return (
-        <View className="flex-1 items-center justify-center py-12 px-10">
+        <View className="flex-1 px-10 py-10 h-screen" style={{backgroundColor: bgColor}}>
             <View className="form-title">
-                <Text className="text-2xl font-semibold mb-2 leading-none text-center">
+                <Text className="text-2xl font-semibold mb-2 leading-none text-center" style={{color: textColor}}>
                     { langMode == 'BN' ? 'পাসওয়ার্ড পুনরুদ্ধার করুন' : 'Recover Password' }
                 </Text>
-                <Text className="text-black text-center">
+                <Text className="text-black text-center" style={{color: textColor}}>
                     { langMode == 'BN' ? 'আপনি যে ইমেল ঠিকানা ব্যবহার করেছেন তা লিখুন।' : 'Enter email address that you used.' }
                 </Text>
     
                 <View className="form-group mt-6">
-                    <Text>
+                    <Text style={{color: textColor}}>
                     {langMode == 'BN' ? 'ইমেইল' : 'Email Address'}
                     <Text style={{ color: '#ff0000' }}>*</Text>
                     </Text>

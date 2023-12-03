@@ -5,6 +5,8 @@ import { faBolt } from '@fortawesome/free-solid-svg-icons';
 import { faCompass } from '@fortawesome/free-solid-svg-icons';
 import { useFonts } from 'expo-font';
 import { Provider } from '../context/auth';
+import 'moment/dist/locale/bn-bd';
+import { useColorScheme } from 'react-native';
 
 export const unstable_settings = {
     initialRouteName: "home"
@@ -20,13 +22,25 @@ export default function Layout() {
         NotoSerifBold: require("../assets/font/NotoSerif-Bold.ttf"),
     });
 
+    const colorScheme = useColorScheme();
+    const tabBarBg =
+    colorScheme === 'light' ? 'white' : 'black';
+
     if(!fontsLoaded ) {
         return null;
     }
 
     return (
         <Provider>
-            <Tabs>
+            <Tabs
+                screenOptions={{ 
+                    tabBarStyle: [{
+                        backgroundColor: tabBarBg,
+                        borderTopColor: tabBarBg,
+                        paddingVertical: 10,
+                    }]
+                }}
+            >
                 <Tabs.Screen
                     name="index"
                     options={{
@@ -42,7 +56,10 @@ export default function Layout() {
                         tabBarIcon:  ({ focused }) => (
                             <FontAwesomeIcon icon={faThLarge} color="#f9020b" />
                         ),
-                        tabBarActiveTintColor: '#f9020b'
+                        tabBarActiveTintColor: '#f9020b',
+                        tabBarLabelStyle: {
+                            marginBottom: 5,
+                        }
                     }}
                 />
 
@@ -72,7 +89,15 @@ export default function Layout() {
                     options={{
                         href: null,
                     }}
-                />   
+                />              
+                
+                <Tabs.Screen
+                    name="news/[id]"
+                    options={{
+                        href: null,
+                    }}
+                />        
+                
                 
                 <Tabs.Screen
                     name="todayNews"
@@ -81,7 +106,10 @@ export default function Layout() {
                         tabBarIcon:  ({ focused }) => (
                             <FontAwesomeIcon icon={faBolt} color="#f9020b" />
                         ),
-                        tabBarActiveTintColor: '#f9020b'
+                        tabBarActiveTintColor: '#f9020b',
+                        tabBarLabelStyle: {
+                            marginBottom: 5,
+                        }
                     }}
                 />   
 
@@ -99,9 +127,19 @@ export default function Layout() {
                         tabBarIcon:  ({ focused }) => (
                             <FontAwesomeIcon icon={faCompass} color="#f9020b" />
                         ),
-                        tabBarActiveTintColor: '#f9020b'
+                        tabBarActiveTintColor: '#f9020b',
+                        tabBarLabelStyle: {
+                            marginBottom: 5,
+                        }
                     }}
                 />   
+
+                <Tabs.Screen
+                    name="categoryall/[slug]"
+                    options={{
+                        href: null,
+                    }}
+                />  
             </Tabs>
         </Provider>
     );

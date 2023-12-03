@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ActivityIndicator, Alert, Image, TouchableOpacity, TextInput } from 'react-native'
+import { StyleSheet, Text, View, ActivityIndicator, Alert, Image, TouchableOpacity, TextInput, useColorScheme } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import axios from '../../api/axios'
 import { useAuth } from '../../context/auth'
@@ -21,6 +21,10 @@ const EditProfile = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [profileImage, setProfileImage] = useState('');
+  const [passwordCurrent, setPasswordCurrent] = useState('');
+  const [newPass, setNewPass] = useState('');
+  const [reTypePass, setReTypePass] = useState('');
+
 
   const [error, setError] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -28,6 +32,9 @@ const EditProfile = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [staticData, setStaticData] = useState({});
   const [processing, setProcessing] = useState(false);
+
+  const colorScheme = useColorScheme();
+  const textColor = colorScheme === 'light' ? '#131313' : 'white';
 
 
   const [value, setValue] = useState(null);
@@ -168,7 +175,7 @@ const EditProfile = () => {
   const updateProfile = async() => {
     if( user?.token ) {
       try {
-        const res = await axios.put('/profile-update', {
+        const payload = {
           name: firstName,
           last_name: lastName,
           country_id: parseInt(country),
@@ -178,7 +185,28 @@ const EditProfile = () => {
           phone: phone,
           marital_status: parseInt(maritalStatus),
           occupations: parseInt(occupation)
-        }, {
+        };
+
+        if( passwordCurrent ) {
+          payload.old_password = passwordCurrent;
+        }
+  
+        if( newPass ) {
+          payload.new_password = newPass;
+        }
+  
+          // Perform confirmation password validation
+        if (newPass !== reTypePass) {
+          setError('error');
+          setErrorMessage(langMode === 'BN' ? "নতুন পাসওয়ার্ড এবং নিশ্চিত পাসওয়ার্ড মেলে না" : "New password and confirm password do not match");
+          return;
+        }
+  
+        if( reTypePass ) {
+          payload.confirm_password = reTypePass;
+        }
+        
+        const res = await axios.put('/profile-update', payload, {
           headers: {
             'Authorization': `Bearer ${user.token}`
           }
@@ -229,7 +257,7 @@ const EditProfile = () => {
   return (
     <View className="flex-1 justify-center bg-white dark:bg-[#272727] dark:text-white py-15 px-5">
       <View className="pt-10">
-        <Text className="mb-8 font-semibold text-xl">{ langMode == 'BN' ? 'প্রোফাইল সেটিংস' : 'Profile Settings' }</Text>
+        <Text className="mb-8 font-semibold text-xl" style={{ color: textColor }}>{ langMode == 'BN' ? 'প্রোফাইল সেটিংস' : 'Profile Settings' }</Text>
       </View>
 
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 0, marginTop: 0, borderBottomWidth: 1, borderBottomColor: '#ebebeb', paddingBottom: 15, marginBottom: 15 }}>
@@ -240,19 +268,19 @@ const EditProfile = () => {
           </View>
           <View>
             <TouchableOpacity onPress={handleFileChange}>
-              <Text className="text-left text-lg font-bold">{user?.normal_user?.name} {user?.normal_user?.lastName}</Text>
-              <Text>{ langMode == 'BN' ? 'প্রোফাইল ফটো পরিবর্তন করুন' : 'Change profile photo' }</Text>
+              <Text className="text-left text-lg font-bold" style={{ color: textColor }}>{user?.normal_user?.name} {user?.normal_user?.lastName}</Text>
+              <Text style={{ color: textColor }}>{ langMode == 'BN' ? 'প্রোফাইল ফটো পরিবর্তন করুন' : 'Change profile photo' }</Text>
             </TouchableOpacity>
           </View>
       </View> 
 
       <View className="mb-1">
-        <Text className="text-xl font-semibold">{ langMode == 'BN' ? 'ব্যক্তিগত তথ্য' : 'Personal Information' }</Text>
+        <Text style={{ color: textColor }} className="text-xl font-semibold">{ langMode == 'BN' ? 'ব্যক্তিগত তথ্য' : 'Personal Information' }</Text>
       </View>
 
       <View className="mb-5">
         <View className="form-group mt-6">
-          <Text>
+          <Text style={{ color: textColor }}>
             { langMode == 'BN' ? 'নামের প্রথম অংশ' : 'First Name' }
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -268,7 +296,7 @@ const EditProfile = () => {
         </View>  
 
         <View className="form-group mt-6">
-          <Text>
+          <Text style={{ color: textColor }}>
             { langMode == 'BN' ? 'নামের শেষাংশ' : 'Last Name' }
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -284,7 +312,7 @@ const EditProfile = () => {
         </View>  
 
         <View className="form-group mt-6">
-          <Text>
+          <Text style={{ color: textColor }}>
             { langMode == 'BN' ? 'জন্ম তারিখ' : 'Date of Birth' }
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -301,7 +329,7 @@ const EditProfile = () => {
         </View>  
 
         <View className="form-group mt-6">
-          <Text>
+          <Text style={{ color: textColor }}>
             { langMode == 'BN' ? 'লিঙ্গ' : 'Gender' }
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -322,7 +350,7 @@ const EditProfile = () => {
         </View>  
 
         <View className="form-group mt-6">
-          <Text>
+          <Text style={{ color: textColor }}>
             { langMode == 'BN' ? 'বৈবাহিক অবস্থা' : 'Marital Status' }
           </Text>
 
@@ -343,11 +371,10 @@ const EditProfile = () => {
         </View>
 
         <View className="form-group mt-6">
-          <Text>
+          <Text style={{ color: textColor }}>
             { langMode == 'BN' ? 'পেশা' : 'Occupation' }
           </Text>
 
-        
           <Dropdown 
             style={styles.dropdown}
             data={occupationData}
@@ -364,11 +391,10 @@ const EditProfile = () => {
         </View>        
         
         <View className="form-group mt-6">
-          <Text>
+          <Text style={{ color: textColor }}>
             { langMode == 'BN' ? 'দেশ' : 'Country' }
           </Text>
 
-        
           <Dropdown 
             style={styles.dropdown}
             data={countryData}
@@ -385,10 +411,9 @@ const EditProfile = () => {
         </View>      
 
         <View className="form-group mt-6">
-          <Text>
+          <Text style={{ color: textColor }}>
             { langMode == 'BN' ? 'শহর' : 'City' }
           </Text>
-
         
           <Dropdown 
             style={styles.dropdown}
@@ -407,12 +432,12 @@ const EditProfile = () => {
       </View>
 
       <View className="mb-1">
-        <Text className="text-xl font-semibold">{ langMode == 'BN' ? 'যোগাযোগের তথ্য' : 'Contact Information' }</Text>
+        <Text className="text-xl font-semibold" style={{ color: textColor }}>{ langMode == 'BN' ? 'যোগাযোগের তথ্য' : 'Contact Information' }</Text>
       </View>
 
       <View className="mb-1">
         <View className="form-group mt-6">
-          <Text>
+          <Text style={{ color: textColor }}>
             { langMode == 'BN' ? 'ইমেইল' : 'Email' }
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -430,7 +455,7 @@ const EditProfile = () => {
         </View>  
 
         <View className="form-group mt-6">
-          <Text>
+          <Text style={{ color: textColor }}>
             { langMode == 'BN' ? 'ফোন' : 'Phone' }
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -446,7 +471,59 @@ const EditProfile = () => {
             required
           />
         </View>  
-      </View>      
+      </View>   
+
+      <View className="mt-5">
+        <Text className="text-xl font-semibold" style={{ color: textColor }}>{ langMode == 'BN' ? 'পাসওয়ার্ড পরিবর্তন' : 'Password Change' }</Text>
+      </View>   
+
+        <View className="form-group mt-6">
+          <Text style={{ color: textColor }}>
+            { langMode == 'BN' ? 'বর্তমান পাসওয়ার্ড' : 'Current Password' }
+            <Text style={{ color: '#ff0000' }}>*</Text>
+          </Text>
+
+          <TextInput
+            className="form-control bg-white dark:bg-[#272727] dark:text-white shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline opacity-50"
+            value={passwordCurrent}
+            onChangeText={setPasswordCurrent}
+            secureTextEntry={true}
+            requiredFocus={false}
+            required
+          />
+        </View>          
+        
+        <View className="form-group mt-6">
+          <Text style={{ color: textColor }}>
+            { langMode == 'BN' ? 'নতুন পাসওয়ার্ড' : 'New Password' }
+            <Text style={{ color: '#ff0000' }}>*</Text>
+          </Text>
+
+          <TextInput
+            className="form-control bg-white dark:bg-[#272727] dark:text-white shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline opacity-50"
+            value={newPass}
+            onChangeText={setNewPass}
+            secureTextEntry={true}
+            requiredFocus={false}
+            required
+          />
+        </View>          
+        
+        <View className="form-group mt-6">
+          <Text style={{ color: textColor }}>
+            { langMode == 'BN' ? 'নতুন পাসওয়ার্ড পুনরায় টাইপ করুন' : 'Re Type New Password' }
+            <Text style={{ color: '#ff0000' }}>*</Text>
+          </Text>
+
+          <TextInput
+            className="form-control bg-white dark:bg-[#272727] dark:text-white shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline opacity-50"
+            value={reTypePass}
+            onChangeText={setReTypePass}
+            secureTextEntry={true}
+            requiredFocus={false}
+            required
+          />
+        </View>  
       
       <View className="mb-10">
         <View>
@@ -468,13 +545,13 @@ const EditProfile = () => {
         <View className="mt-3">
           { error && (
             <View className="flex-1 font-bold">
-              <Text>{errorMessage}</Text>
+              <Text style={{ color: textColor }}>{errorMessage}</Text>
             </View>
           ) }         
           
           { success && (
             <View className="flex-1 font-bold">
-              <Text>{successMessage}</Text>
+              <Text style={{ color: textColor }}>{successMessage}</Text>
             </View>
           ) }
         </View>

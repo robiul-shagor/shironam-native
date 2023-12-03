@@ -1,21 +1,20 @@
 {
   "expo": {
     "scheme": "acme",
+    "userInterfaceStyle": "automatic",
     "web": {
       "bundler": "metro"
     },
     "name": "shironam-native",
     "slug": "shironam-native",
+    "android": {
+      "package": "com.shironam.app",
+      "versionCode": 1
+    },
     "extra": {
       "eas": {
         "projectId": "5fc796e5-d3ac-40b1-b860-6d0ca0aeb51e"
       }
-    },
-    "android": {
-      "package": "com.robiul_shagor.shironamnative"
-    },
-    "ios": {
-      "bundleIdentifier": "y"
     }
   }
 }

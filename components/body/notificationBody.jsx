@@ -1,16 +1,22 @@
-import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, FlatList, useColorScheme, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import { useAuth } from '../../context/auth'
 import Footer from './footer'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'expo-router';
-import moment from 'moment';
+import moment from 'moment/min/moment-with-locales';
 import axios from '../../api/axios';
 
 const NotificationBody = () => {
     const { user, notificationData, setReFetch, langMode } = useAuth();
     const router = useRouter();
+    const colorScheme = useColorScheme();
+
+    const bgColor = colorScheme === 'light' ? 'white' : '#272727';
+    const bgUnreadColor = colorScheme === 'light' ? '#f0f1f3' : '#191919';
+    const bgReadColor = colorScheme === 'light' ? 'white' : '#272727';
+    const textColor = colorScheme === 'light' ? '#191919' : 'white';
 
     const readNotification = async( id, link ) => {
         if( user?.token ) {
@@ -54,21 +60,21 @@ const NotificationBody = () => {
             <TouchableOpacity onPress={()=> readNotification( itemId, itemLink ) }>
                 <View className="flex flex-row mb-3" 
                     style={
-                        item.read_at == null
-                            ? styles.notificationUnread
-                            : styles.notificationRead
+                        [item.read_at == null
+                            ? [styles.notificationUnread, {backgroundColor: bgUnreadColor}]
+                            : styles.notificationRead, { backgroundColor: bgReadColor }]
                     }>
-                    <View className="w-7 h-7 rounded-full flex items-center justify-center border mr-2">
-                        <FontAwesomeIcon icon={faCheck} size={10} style={{marginRight: 5}} />
+                    <View className="w-10 h-10 rounded-full flex items-center justify-center border mr-2" style={{borderColor: textColor}}>
+                        <FontAwesomeIcon color={textColor} icon={faCheck} size={10} />
                     </View>
 
                     <View className="justify-center" style={{ flex: 1}}>
                         <View style={{marginBottom: 0}}>
-                            <Text>{langMode == 'BN' ? item.data.message_bn : item.data.message_en}</Text>
+                            <Text style={{ color: textColor }}>{langMode == 'BN' ? item.data.message_bn : item.data.message_en}</Text>
                         </View>
                         <View style={{marginTop: -5}}>
-                            <Text>
-                                { moment(new Date(item.created_at)).startOf('seconds').fromNow() }
+                            <Text style={{ color: textColor }}>
+                                { langMode == 'BN' ? moment(new Date(item.created_at)).startOf('seconds').locale('bn-bd').fromNow() : moment(new Date(item.created_at)).startOf('seconds').locale("en").fromNow() }
                             </Text>
                         </View>
                     </View>
@@ -79,15 +85,15 @@ const NotificationBody = () => {
 
     return (
         <>
-            <View style={{backgroundColor: 'white', paddingHorizontal: 15, paddingVertical: 15}}>
-                <Text style={{fontSize: 18, fontWeight: 600}}>{langMode == 'BN' ? 'বিজ্ঞপ্তি' : 'Notification'}</Text>       
+            <View style={{backgroundColor: bgColor, paddingHorizontal: 15, paddingVertical: 15}}>
+                <Text style={{fontSize: 18, fontWeight: 600, color: textColor}}>{langMode == 'BN' ? 'বিজ্ঞপ্তি' : 'Notification'}</Text>       
             </View>
             <FlatList
                 data={notificationData}
                 renderItem={({ item }) => <CardItems item={item} />}
                 keyExtractor={(item) => item.id.toString()}
                 showsVerticalScrollIndicator={false}
-                style={{ paddingHorizontal: 15, width: '100%', backgroundColor: 'white' }}
+                style={{ paddingHorizontal: 15, width: '100%', backgroundColor: bgColor }}
                 ListFooterComponent={
                     <>
                         <View>

@@ -26,7 +26,9 @@ export default function UserQuery(query, pageNumber, type) {
                 switch (type) {
                     case 'category':
                         totalPosts = await axios.get(`/news-feed-info?category=${query}`, config)
-                        maxPage = totalPosts.data.max_paginate;
+                        break;                    
+                    case 'no_filter':
+                        totalPosts = await axios.get(`/news-feed-info?category=${query}&no_filter=1`, config)
                         break;
                     case 'subcategory':
                         totalPosts = await axios.get(`/news-feed-info?sub_category=${query}`, config)
@@ -35,25 +37,28 @@ export default function UserQuery(query, pageNumber, type) {
                         totalPosts = await axios.get(`/news-feed-info?tag=${query}`, config)
                         break;
                     case 'breaking':
-                        totalPosts = await axios.get('/news-feed-info?breaking=1', config);
+                        totalPosts = await axios.get('/news-feed-info?breaking_news=1', config);
                         break;
                     case 'today':
-                        totalPosts = await axios.get('/news-feed-info?todays_news=1', config);
+                        totalPosts = await axios.get('/news-feed-info?today_news=1', config);
                         break;
                     default:
                         totalPosts = await axios.get('/news-feed-info', config);
                         break;
                 }
 
-                maxPage = totalPosts.data.max_paginate;
+                maxPage = totalPosts.data.max_paginate ?? 0;
 
-                setMaxPage(totalPosts.data.max_paginate);
+                setMaxPage(maxPage);
 
                 // Response Query
                 let response;
                 switch (type) {
                     case 'category':
                         response = await axios.get(`/news-list?paginate=${pageNumber}&category=${query}`, config);
+                        break;               
+                    case 'no_filter':
+                        response = await axios.get(`/news-list?paginate=${pageNumber}&no_filter=1&category=${query}`, config);
                         break;
                     case 'subcategory':
                         response = await axios.get(`/news-list?paginate=${pageNumber}&sub_category=${query}`, config);
@@ -62,10 +67,10 @@ export default function UserQuery(query, pageNumber, type) {
                         response = await axios.get(`/news-list?paginate=${pageNumber}&tag=${query}`, config);
                         break;
                     case 'breaking':
-                        response = await axios.get(`/news-list?paginate=${pageNumber}&breaking=1`, config);
+                        response = await axios.get(`/news-list?paginate=${pageNumber}&breaking_news=1`, config);
                         break;
                     case 'today':
-                        response = await axios.get(`/news-list?paginate=${pageNumber}&todays_news=1`, config);
+                        response = await axios.get(`/news-list?paginate=${pageNumber}&today_news=1`, config);
                         break;
                     default:
                         response = await axios.get(`/news-list?paginate=${pageNumber}`, config);
@@ -80,9 +85,7 @@ export default function UserQuery(query, pageNumber, type) {
                 });
 
                 setLoading(false);
-                if (pageNumber >= maxPage) {
-                    setNoMore(true);
-                }
+                setNoMore(response.data.length == 0);
 
             } catch (e) {
                 if (e.response && e.response.status === 429) {

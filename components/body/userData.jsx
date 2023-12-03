@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, Switch, Image, Alert } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Switch, Image, Alert, useColorScheme } from 'react-native'
 import React, {useState, useEffect} from 'react'
 import axios from '../../api/axios';
 import { useAuth } from '../../context/auth';
@@ -17,6 +17,10 @@ const UserData = () => {
     const [langMe, setLangMe] = useState(false);
     const [darkMe, setDarkMe] = useState(false);
     const [userImage, setUserImage] = useState(null);
+    
+    const colorScheme = useColorScheme();
+    const bgDark = colorScheme === 'light' ? 'white' : '#272727';
+    const textDark = colorScheme === 'light' ? '#191919' : 'white';
 
     useEffect(() => {
       if (user?.token) {
@@ -86,34 +90,34 @@ const UserData = () => {
     };
 
     return (
-        <View className={`flex-1 ${darkMode == 'dark' ? 'bg-[#272727] text-white' : 'bg-white' } h-screen py-15 px-10`}>
+        <View className={`flex-1 h-screen py-15 px-10`} style={{ backgroundColor: bgDark }}>
 
             <View className="mt-10">
-                <Text className="mb-4 text-md">{langMode === 'BN' ? 'আমার প্রোফাইল' : 'My Profile'}</Text>
+                <Text className="mb-4 text-md" style={{color: textDark}}>{langMode === 'BN' ? 'আমার প্রোফাইল' : 'My Profile'}</Text>
             </View>
 
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 0, marginTop: 0, borderBottomWidth: 1, borderBottomColor: '#ebebeb', paddingBottom: 15, marginBottom: 15 }}>
                 <View style={{marginRight: 15}}>
                 {userImage && (
-                    <Image source={{ uri: userImage }} style={{ width: 65, height: 65, borderRadius: 100 }} />
+                    <Image source={{ uri: userImage }} style={{ width: 65, height: 65, borderRadius: 100 }} resizeMode={'cover'} />
                 ) }
                 </View>
                 <View>
-                    <Text className="text-left text-lg font-bold">{user?.normal_user?.name} {user?.normal_user?.lastName}</Text>
-                    <Text>{user?.normal_user?.email}</Text>
+                    <Text style={{color: textDark}} className="text-left text-lg font-bold">{user?.normal_user?.name} {user?.normal_user?.lastName}</Text>
+                    <Text style={{color: textDark}}>{user?.normal_user?.email}</Text>
                 </View>
             </View>   
 
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20, marginBottom: 10, borderBottomWidth: 1, borderBottomColor: '#ebebeb' }}>
-                <FontAwesomeIcon size={20} icon={faUserEdit} style={{color: '#000000', marginRight: 5}} />
-                <Text className="text-left text-lg font-semibold">{langMode == 'BN' ? 'আমার পছন্দ সম্পাদনা করুন' : 'Edit my preference'}</Text>
+                <FontAwesomeIcon size={20} color={textDark} icon={faUserEdit} style={{color: '#000000', marginRight: 5}} />
+                <Text style={{color: textDark}} className="text-left text-lg font-semibold">{langMode == 'BN' ? 'আমার পছন্দ সম্পাদনা করুন' : 'Edit my preference'}</Text>
             </View>        
 
             <View className="mt-3">
                 <Link href='login/editprofile' >
                     <View style={styles.menuItem}>
-                        <FontAwesomeIcon size={15} icon={faEdit} style={styles.menuIcons} />
-                        <Text>{langMode === 'BN' ? 'জীবন বৃত্তান্ত সম্পাদনা' : 'Edit Profile'}</Text>
+                        <FontAwesomeIcon size={16} color={textDark} icon={faEdit} style={styles.menuIcons} />
+                        <Text style={[styles.menuText, {color: textDark}]}>{langMode === 'BN' ? 'জীবন বৃত্তান্ত সম্পাদনা' : 'Edit Profile'}</Text>
                     </View>
                 </Link>    
             </View>         
@@ -121,8 +125,8 @@ const UserData = () => {
             <View className="mt-3">
                 <Link href='login/interests'>
                     <View style={styles.menuItem}>
-                        <FontAwesomeIcon size={15} icon={faStar} style={styles.menuIcons} />
-                        <Text>{langMode === 'BN' ? 'আমার আগ্রহ' : 'My Interests'}</Text>
+                        <FontAwesomeIcon size={16} color={textDark} icon={faStar} style={styles.menuIcons} />
+                        <Text style={[styles.menuText, {color: textDark}]}>{langMode === 'BN' ? 'আমার আগ্রহ' : 'My Interests'}</Text>
                     </View>
                 </Link>
             </View>            
@@ -130,40 +134,27 @@ const UserData = () => {
             <View className="mt-3 mb-5">
                 <Link href='login/bookmarks'>
                     <View style={styles.menuItem}>
-                        <FontAwesomeIcon size={15} icon={faBookmark} style={styles.menuIcons} />
-                        <Text>{langMode === 'BN' ? 'বুকমার্ক' : 'Bookmarks'}</Text>
+                        <FontAwesomeIcon size={16} color={textDark} icon={faBookmark} style={styles.menuIcons} />
+                        <Text style={[styles.menuText, {color: textDark}]}>{langMode === 'BN' ? 'বুকমার্ক' : 'Bookmarks'}</Text>
                     </View>
                 </Link>
             </View>
             
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20, marginBottom: 0, borderBottomWidth: 1, borderBottomColor: '#ebebeb' }}>
-                <FontAwesomeIcon icon={faCog} size={20} style={{color: '#000000', marginRight: 5}} />
-                <Text className="text-left text-lg font-semibold">{langMode == 'BN' ? 'সেটিংস' : 'Settings'}</Text>
+                <FontAwesomeIcon icon={faCog} color={textDark} size={20} style={{color: '#000000', marginRight: 5}} />
+                <Text style={{color: textDark}} className="text-left text-lg font-semibold">{langMode == 'BN' ? 'সেটিংস' : 'Settings'}</Text>
             </View>
+                
             
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20, marginBottom: 7 }}>
-
-                <Text style={{  marginRight: 10}}>
-                    {langMode == 'BN' ? 'হালকা মোড' : 'Light Mode'}
-                </Text>
-                <Switch
-                    value={darkMe}
-                    onValueChange={handleDarkMode}
-                />
-                <Text style={{  marginLeft: 10}}>
-                    {langMode == 'BN' ? 'ডার্ক মোড' : 'Dark Mode'}
-                </Text>
-            </View>            
-            
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20, marginBottom: 7 }}>
-                <Text style={{  marginRight: 10}}>
+                <Text style={{  marginRight: 10, color: textDark}}>
                     {langMode == 'BN' ? 'ইংরেজি' : 'English'}
                 </Text>
                 <Switch
                     value={langMe}
                     onValueChange={handleLanguageChange}
                 />
-                <Text style={{  marginLeft: 10}}>
+                <Text style={{  marginLeft: 10, color: textDark }}>
                     {langMode == 'BN' ? 'বাংলা' : 'Bangla'}
                 </Text>
             </View>
@@ -179,11 +170,11 @@ const UserData = () => {
                     justifyContent: 'center',
                     width: '100%',
                     flexDirection: 'row', 
-                    alignItems: 'center'
+                    alignItems: 'center',
                 }}
             >
                 <FontAwesomeIcon icon={faSignOut} style={{color: '#ffffff', marginRight: 5}} />
-                <Text className="text-white">{langMode == 'BN' ? 'লগআউট' : 'Logout'}</Text>
+                <Text className="text-white" style={{fontSize: 16}}>{langMode == 'BN' ? 'লগআউট' : 'Logout'}</Text>
             </TouchableOpacity>
         </View>
     )
@@ -195,10 +186,14 @@ const styles = StyleSheet.create({
     menuItem: {
        flexDirection:'row',
        justifyContent: 'center',
-       alignItems: 'center'
+       alignItems: 'center',
+       marginBottom: 15,
     },
     menuIcons: {
         marginRight: 10,
         opacity: 0.80
+    },
+    menuText: {
+        fontSize: 16
     }
 })

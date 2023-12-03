@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View, FlatList } from 'react-native'
+import { StyleSheet, Text, View, useColorScheme, ActivityIndicator } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import axios from '../../api/axios'
 import { useAuth } from '../../context/auth'
 import ImageBlurLoading from 'react-native-image-blur-loading'
 import { images } from '../../constants'
-import moment from 'moment'
+import moment from 'moment/min/moment-with-locales';
 import { Link } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -14,6 +14,13 @@ import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 const AllCategory = () => {
     const { user, langMode } = useAuth();
     const [catItem, setCatItem ] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const colorScheme = useColorScheme();
+
+    const bgCardColor = colorScheme === 'light' ? styles.cardContainerWhite : styles.cardContainerDark;
+    const textColor = colorScheme === 'light' ? styles.textDark : styles.textWhite;
+    const iconColor = colorScheme === 'light' ? '#131313' : 'white';
+    const containerColor = colorScheme === 'light' ? 'white' : 'black';
 
     useEffect(() => {
         if (user?.token) {
@@ -27,6 +34,7 @@ const AllCategory = () => {
                     await axios.get('/category-list', config)
                     .then(res => {
                         setCatItem(res.data);
+                        setLoading(false);
                     });
                 } catch (e) {
                     console.log(e);
@@ -36,26 +44,18 @@ const AllCategory = () => {
         }
     }, [])
 
-    const footerComponent = () => {
-
-    };    
-    
-    const loadMoreItems = () => {
-
-    };
-
     const CardItems = ({ item }) => {
         return(
             item.name ? (
-                <View key={item.key} data-id={item.id} style={styles.cardContainer}>
-                    <Link href={`/subcategory/${item.slug}`}>
-                        <View className="relative">
+                <View key={item.key} data-id={item.id} style={[styles.cardContainer, bgCardColor]}>
+                    <Link href={`/categoryall/${item.slug}`}>
+                        <View className="relative overflow-hidden">
                             { item?.category_image ?
                                 <>               
                                     <ImageBlurLoading
                                         thumbnailSource={images.placeholder}
                                         source={{ uri: item.category_image  }} 
-                                        style={{ width: '100%', height: undefined, aspectRatio: 4 / 3 }}
+                                        style={{ width: '100%', height: 125, aspectRatio: 4 / 3, resizeMode: 'cover' }}
                                     />
                                     <Text style={styles.counterBG}>{item.news}</Text>   
                                 </>  : 
@@ -63,7 +63,7 @@ const AllCategory = () => {
                                     <ImageBlurLoading
                                         thumbnailSource={images.placeholder}
                                         source={images.placeholder} 
-                                        style={{ width: '100%', height: undefined, aspectRatio: 4 / 3 }}
+                                        style={{ width: '100%', height: 125, aspectRatio: 4 / 3, resizeMode: 'cover' }}
                                     />
                                     <Text style={styles.counterBG}>{item.news}</Text>   
                                 </>        
@@ -71,23 +71,22 @@ const AllCategory = () => {
                         </View>
 
                         <View className="text-info">
-                            
-                            <Text className="text-lg font-semibold mt-4 -mb-3">#{item.name}</Text>
+                            <Text className="text-lg font-semibold mt-4" style={[styles.headingStyle, textColor]}>#{ langMode == 'BN' ? item.name_bn: item.name}</Text>
 
                             <View className="flex flex-row mt-4 justify-between">
                                 <View className="flex flex-row content-center">
                                     <View className="text-xl flex flex-row align-">
-                                        <FontAwesomeIcon icon={faClock} size={12} style={{opacity: 0.7, marginTop: 2, marginRight: 1}} />
-                                        <Text>{ moment(new Date(item.created_at)).startOf('second').fromNow(true) }</Text>
+                                        <FontAwesomeIcon icon={faClock} size={12} color={iconColor} style={{opacity: 0.7, marginTop: 2, marginRight: 1}} />
+                                        <Text style={[styles.metaTitle, textColor]}>{ langMode == 'BN' ? moment(new Date(item.created_at)).startOf('seconds').locale('bn-bd').fromNow() : moment(new Date(item.created_at)).startOf('seconds').locale("en").fromNow() }</Text>
                                     </View>    
                                     <View className="text-xl flex flex-row ml-1">
-                                        <FontAwesomeIcon icon={faClock} size={12} style={{opacity: 0.7, marginTop: 2, marginRight: 2}} />
-                                        <Text>{item.view}</Text>
+                                        <FontAwesomeIcon icon={faClock} size={12} color={iconColor} style={{opacity: 0.7, marginTop: 2, marginRight: 2}} />
+                                        <Text style={[styles.metaTitle, textColor]}>{item.view}</Text>
                                     </View>
                                 </View>
 
                                 <View className="flex justify-items-end">
-                                    <FontAwesomeIcon icon={faArrowUp} size={13} transform={{ rotate: 45 }} style={{marginLeft: 15}} />
+                                    <FontAwesomeIcon icon={faArrowUp} size={13} color={iconColor} transform={{ rotate: 45 }} style={{marginLeft: 15}} />
                                 </View>
                             </View>
                         </View>
@@ -95,7 +94,7 @@ const AllCategory = () => {
                 </View>
             ) : (
                 ( item.placement_title === "Single Category") ? (
-                    <View key={item.key} data-id={item.id} style={styles.cardContainer}>
+                    <View key={item.key} data-id={item.id} style={[styles.cardContainer, bgCardColor]}>
                         <TouchableOpacity onPress={() => item.action_url && WebBrowser.openBrowserAsync(item.action_url)}>
                             <View className="relative">
                                 <ImageBlurLoading
@@ -107,17 +106,17 @@ const AllCategory = () => {
 
                             <View className="text-info flex flex-row">
                                 <View>
-                                    <Text className="leading-normal">{item.button_title}</Text>
-                                    <FontAwesomeIcon icon={faClock} size={12} style={{opacity: 0.7, marginTop: 2, marginRight: 1}} />
+                                    <Text style={styles.metaTitle} className="leading-normal">{item.button_title}</Text>
+                                    <FontAwesomeIcon icon={faClock} size={12} color={iconColor} style={{opacity: 0.7, marginTop: 2, marginRight: 1}} />
                                 </View>
                                 <View className="flex items-center justify-between">
-                                    <Text>Sponsored by: {item.sponsor}</Text>
+                                    <Text style={styles.metaTitle}>Sponsored by: {item.sponsor}</Text>
                                 </View>
                             </View>
                         </TouchableOpacity>
                     </View>
                 ) : (
-                    <View key={item.key} data-id={item.id} style={styles.cardContainer}>
+                    <View key={item.key} data-id={item.id} style={[styles.cardContainer, bgCardColor]}>
                         <TouchableOpacity onPress={() => item.action_url && WebBrowser.openBrowserAsync(item.action_url)}>
                             <View className="relative">
                                 <ImageBlurLoading
@@ -129,11 +128,11 @@ const AllCategory = () => {
 
                             <View className="text-info flex flex-row">
                                 <View>
-                                    <Text className="leading-normal">{item.button_title}</Text>
-                                    <FontAwesomeIcon icon={faClock} size={12} style={{opacity: 0.7, marginTop: 2, marginRight: 1}} />
+                                    <Text style={styles.metaTitle} className="leading-normal">{item.button_title}</Text>
+                                    <FontAwesomeIcon icon={faClock} size={12} color={iconColor} style={{opacity: 0.7, marginTop: 2, marginRight: 1}} />
                                 </View>
                                 <View className="flex items-center justify-between">
-                                    <Text>Sponsored by: {item.sponsor}</Text>
+                                    <Text style={styles.metaTitle}>Sponsored by: {item.sponsor}</Text>
                                 </View>
                             </View>
                         </TouchableOpacity>
@@ -144,8 +143,13 @@ const AllCategory = () => {
     };
 
     return (
-        <View className="flex flex-row flex-wrap space-x-4 clear-both dark:text-white ml-2.5">
-            { catItem?.map( (item, index) => (
+        <View className="flex flex-row flex-wrap" style={{ backgroundColor: containerColor }}>
+            {loading ? 
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#f9020b" />
+            </View> : null}
+            
+            { !loading && catItem?.map( (item, index) => (
                 <CardItems item={item} key={index} />
             ) ) }
         </View>
@@ -156,7 +160,6 @@ export default AllCategory
 
 const styles = StyleSheet.create({
     cardContainer: {
-        backgroundColor: 'white',
         borderRadius: 8,
         shadowColor: 'black',
         shadowOpacity: 0.2,
@@ -164,8 +167,15 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 5, // Android shadow
         padding: 10,
-        width: '44%',
-        margin: 10
+        width: '44.85%',
+        margin: 10,
+        overflow: 'hidden'
+    },
+    cardContainerDark: {
+        backgroundColor: '#272727',
+    },    
+    cardContainerWhite: {
+        backgroundColor: 'white',
     },
     counterBG: {
         backgroundColor: '#f9020b',
@@ -175,10 +185,28 @@ const styles = StyleSheet.create({
         width: 30,
         height: 30,
         color: 'white',
-        lineHeight: 30,
+        lineHeight: 25,
         overflow: 'hidden',
         position: 'absolute',
         right: 10,
-        bottom: -15
+        bottom: 10
+    },
+    headingStyle: {
+       marginBottom: -8,
+       fontSize: 16,
+       width: 120,
+       lineHeight: 22
+    },
+    metaTitle: {
+        fontSize: 12,
+        marginHorizontal: 5,
+        marginTop: -1,
+        marginBottom: 8
+    },
+    textDark: {
+        color: '#131313'
+    },
+    textWhite: {
+        color: 'white'
     }
 })

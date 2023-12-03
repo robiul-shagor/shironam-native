@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, useColorScheme } from 'react-native'
 import React from 'react'
 import { useAuth } from '../../context/auth'
 import { Link } from 'expo-router'
@@ -8,6 +8,9 @@ import { TodayCard } from '../../components'
 
 const Index = () => {
     const { user, langMode } = useAuth();
+    const colorScheme = useColorScheme();
+    const bgColor = colorScheme === 'light' ? 'white' : '#272727';
+    const textColor = colorScheme === 'light' ? '#191919' : 'white';
     
     return (
         <>
@@ -15,13 +18,13 @@ const Index = () => {
                 user?.token ? (
                     <TodayCard />
                 ) : (
-                    <View style={styles.container}>
+                    <View style={[styles.container, { backgroundColor: bgColor }]}>
                         <View style={styles.iconStyle}>
                             <FontAwesomeIcon icon={faBolt} size={ 40 } color="#f9020b" />
                         </View>
                         <View style={styles.textContent}>
-                            <Text style={styles.paraText}>Please login to view Today news</Text>
-                            <Link href="/login" style={styles.linkURL}><Text>Login</Text></Link>
+                            <Text style={[styles.paraText, {color: textColor}]}>{ langMode == 'BN' ? 'আজকের খবর দেখতে লগইন করুন' : 'Please login to view Today news' }</Text>
+                            <Link href="/login" style={styles.linkURL}><Text>{ langMode == 'BN' ? 'লগইন করুন' : 'Login' }</Text></Link>
                         </View>
                     </View>
                 )

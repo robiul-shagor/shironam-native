@@ -1,4 +1,4 @@
-import { SafeAreaView, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { SafeAreaView, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { HeaderRight, CategoryCard } from '../../components';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
@@ -12,6 +12,9 @@ export default function CategoryPage() {
                             .split('-')
                             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                             .join(' ');
+
+    const colorScheme = useColorScheme();
+
     
 
     return(
@@ -20,14 +23,18 @@ export default function CategoryPage() {
                 <Stack.Screen 
                     options={{
                         headerTitle: formattedTitle,
+                        headerTintColor: colorScheme === 'light' ? 'black' : 'white',
                         headerRight: () => (
                             <HeaderRight />
                         ),
                         headerLeft: () => (
                             <TouchableOpacity onPress={()=> router.back() } style={styles.headerLeft}>
-                                <FontAwesomeIcon icon={faAngleLeft} />
+                                <FontAwesomeIcon size={18} icon={faAngleLeft} color={colorScheme === 'light' ? 'black' : 'white'} />
                             </TouchableOpacity>
                         ), 
+                        headerStyle: {
+                            backgroundColor: colorScheme === 'light' ? 'white' : '#000000',
+                        },
                     }}
                 />
 
@@ -39,6 +46,7 @@ export default function CategoryPage() {
 
 const styles = StyleSheet.create({
     headerLeft: {
-        marginLeft: 5
+        marginLeft: 5,
+        padding: 10
     } 
 })

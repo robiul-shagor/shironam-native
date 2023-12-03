@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, Switch, ActivityIndicator, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, TextInput, Switch, ActivityIndicator, TouchableOpacity, useColorScheme } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../../context/auth'
 import { Link, useRouter } from 'expo-router'
@@ -14,6 +14,9 @@ const Login = () => {
 
   const router = useRouter();
   const { logIn, registerData, langMode } = useAuth();
+
+  const colorScheme = useColorScheme();
+  const textColor = colorScheme === 'light' ? '#131313' : 'white';
 
   // Store user data
   const storeData = async (value) => {
@@ -148,15 +151,15 @@ const Login = () => {
   return (
     <View className="flex-1 items-center justify-center bg-white h-screen dark:bg-[#272727] dark:text-white py-15 px-10">
       <View className="form-title">
-        <Text className="text-2xl font-semibold mb-2 leading-none text-center">
+        <Text className="text-2xl font-semibold mb-2 leading-none text-center" style={{color: textColor}}>
           { langMode == 'BN' ? 'লগইন' : 'Login'}
         </Text>
-        <Text className="text-black text-center">
+        <Text className="text-center" style={{color: textColor}}>
           { langMode == 'BN' ? 'আপনার ইমেইল এবং পাসওয়ার্ড ব্যবহার করে এখানে লগইন করুন' : ' Login here using your email and password'}
         </Text>
 
         <View className="form-group mt-6">
-          <Text>
+          <Text style={{color: textColor}}>
             {langMode == 'BN' ? 'ইমেইল' : 'Email Address'}
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -173,7 +176,7 @@ const Login = () => {
         </View>          
         
         <View className="form-group mt-6">
-          <Text>
+          <Text style={{color: textColor}}>
             {langMode == 'BN' ? 'পাসওয়ার্ড' : 'Password'}
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -192,7 +195,7 @@ const Login = () => {
             value={rememberMe}
             onValueChange={handleRememberMeChange}
           />
-          <Text style={{  marginLeft: 10}}>
+          <Text style={{  marginLeft: 10, color: textColor}}>
             {langMode == 'BN' ? 'পাসওয়ার্ড সংরক্ষণ' : 'Remember Password'}
           </Text>
         </View>
@@ -200,19 +203,12 @@ const Login = () => {
         <View className="form-group mt-6">
           <TouchableOpacity
             onPress={handleLogin}
-            disabled={processing}
-            style={{
-              backgroundColor: 'black',
-              padding: 10,
-              borderRadius: 5,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+            style={styles.buttonStyle}
           >
             { processing ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text style={{ color: 'white' }}>
+              <Text style={{color: 'white'}}>
                 {langMode == 'BN' ? 'সাইন ইন করুন' : 'Sign In'}
               </Text>
             )}
@@ -220,7 +216,7 @@ const Login = () => {
         </View>
         
         <View className="mt-4">
-          <Link href="/login/forgetpass" className="text-center" style={{ textDecorationLine: 'underline' }}>
+          <Link href="/login/forgetpass" className="text-center" style={{ textDecorationLine: 'underline', color: textColor }}>
             { langMode == 'BN' ? 'পাসওয়ার্ড ভুলে গেছেন' : 'Forgot Password'}
           </Link>
         </View>
@@ -228,7 +224,7 @@ const Login = () => {
         <View><Text>{'\n'}</Text></View>
 
         <View className="mt-4 mb-40">
-          <Text className="text-center"> 
+          <Text className="text-center" style={{color: textColor}}> 
             { langMode == 'BN' ? 'অ্যাকাউন্ট প্রয়োজন? ' : 'Need Account'}
             <Link 
               href="/register"
@@ -238,7 +234,6 @@ const Login = () => {
               { langMode == 'BN' ? 'নিবন্ধন করুন' : 'Sign Up'}
             </Link>        
           </Text>
-
 
           { message && (
             <View className="mt-5" style={{ backgroundColor: '#f9020b',  paddingVertical: 10, paddingHorizontal: 15, borderRadius: 5 }}>
@@ -253,4 +248,14 @@ const Login = () => {
 
 export default Login
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  buttonStyle: {
+    backgroundColor: 'black',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    textAlign: 'center'
+  }
+})

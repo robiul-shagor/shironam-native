@@ -1,4 +1,4 @@
-import { Text, View, TouchableOpacity, Image, Alert } from 'react-native'
+import { Text, View, TouchableOpacity, Image, Alert, useColorScheme } from 'react-native'
 import React, { useState, useEffect, useCallback } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons'
@@ -13,6 +13,8 @@ const HeaderRight = () => {
   const { user, baseURL, notificationData, setNotificationData, reFetch, setReFetch, logOut, langMode } = useAuth();
   const router = useRouter();
   const [userImage, setUserImage] = useState(null);
+  const colorScheme = useColorScheme();
+  const textColors = colorScheme === 'light' ? 'black' : 'white';
 
   useEffect(() => {
     if (user?.token) {
@@ -103,25 +105,25 @@ const HeaderRight = () => {
       {user?.token ? (
         <>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <TouchableOpacity onPress={handleSearch} style={{ marginRight: 10 }} >
-              <FontAwesomeIcon icon={faSearch} />
+            <TouchableOpacity onPress={handleSearch} style={{ marginRight: 18 }} >
+              <FontAwesomeIcon icon={faSearch} size={20} color={textColors} />
             </TouchableOpacity>            
-            <TouchableOpacity onPress={handleNotification} style={{ marginRight: 10, position: 'relative' }} >
-              <FontAwesomeIcon icon={faBell} />
-              <View style={{position: 'absolute', right: -3, top: -8, backgroundColor: '#f9020b', color: '#ffffff', width: 12, height: 12, borderRadius: 15}}><Text style={{ color: '#ffffff', fontSize: 10, textAlign: 'center' }}>{filteredNotification.length}</Text></View>
+            <TouchableOpacity onPress={handleNotification} style={{ marginRight: 18, position: 'relative' }} >
+              <FontAwesomeIcon icon={faBell} size={20} color={textColors} />
+              <View style={{position: 'absolute', right: -5, top: -12, backgroundColor: '#f9020b', color: '#ffffff', width: 15, height: 15, borderRadius: 15}}><Text style={{ color: '#ffffff', fontSize: 10, textAlign: 'center' }}>{filteredNotification.length}</Text></View>
             </TouchableOpacity>          
             <TouchableOpacity onPress={handlePress} style={{ marginRight: 10 }} >
               { userImage ? (
-                <Image source={{ uri: userImage }} style={{ width: 24, height: 24, borderRadius: 100 }} />
+                <Image source={{ uri: userImage }} style={{ width: 30, height: 30, borderRadius: 100 }} />
               ) : (
-                <FontAwesomeIcon icon={faCircleUser} />
+                <FontAwesomeIcon icon={faCircleUser} size={18} />
               ) }
             </TouchableOpacity>
           </View>
         </>
       ) : (
-        <TouchableOpacity onPress={handlePress} style={{ marginRight: 10 }} >
-          <FontAwesomeIcon icon={faCircleUser} />
+        <TouchableOpacity onPress={handlePress} style={{ paddingRight: 15 }} >
+          <FontAwesomeIcon icon={faCircleUser} size={20} color={textColors} />
         </TouchableOpacity>
       )}
     </>

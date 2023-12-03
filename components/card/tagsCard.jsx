@@ -220,8 +220,6 @@ const TagsCard = () => {
             <Text>{langMode == 'BN' ? 'Error' : 'ত্রুটি হচ্ছে...'}</Text>
           </View> : null
         }          
-        
-        <Footer />
       </>
     )
   }
@@ -242,7 +240,7 @@ const TagsCard = () => {
       keyExtractor={(item, index) => index.toString()}
       ListFooterComponent={renderLoader}
       onEndReached={loadMoreItems}
-      onEndReachedThreshold={0.5}
+      onEndReachedThreshold={0.1}
       showsVerticalScrollIndicator={false}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

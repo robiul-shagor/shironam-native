@@ -27,6 +27,7 @@ import VerifyBody from "./body/verifyBody";
 import SetInterestBody from "./body/setInterestBody";
 import ForgetPassBody from "./body/forgetPassBody";
 import ResetPassBody from "./body/resetPassBody";
+import CategoryAllCard from "./card/categoryAllCard";
 
 export {
     HeaderLeft,
@@ -57,5 +58,6 @@ export {
     VerifyBody,
     SetInterestBody,
     ForgetPassBody,
-    ResetPassBody
+    ResetPassBody,
+    CategoryAllCard
 }

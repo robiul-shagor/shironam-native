@@ -1,8 +1,10 @@
 import { Slot, Stack } from 'expo-router';
-import { SafeAreaView } from 'react-native'
+import { SafeAreaView, useColorScheme } from 'react-native'
 import { HeaderLeft, HeaderMiddle, HeaderRight } from '../../components';
 
 export default function HomeLayout() {
+    const colorScheme = useColorScheme();
+      
     return (
         <>
             <SafeAreaView>
@@ -10,8 +12,8 @@ export default function HomeLayout() {
                 options={{
                     headerShadowVisible: true,
                     headerStyle: {
-                        backgroundColor: 'white',
-                        height: 85,
+                        backgroundColor: colorScheme === 'light' ? 'white' : '#000000',
+                        height: 90,
                     },
                     headerLeft: () => (
                         <HeaderLeft />
@@ -24,8 +26,7 @@ export default function HomeLayout() {
                     )
                 }} />
                 
-                <Slot /> 
-                
+                <Slot style={{ backgroundColor: colorScheme === 'light' ? 'white' : '#272727' }} /> 
             </SafeAreaView>
         </>
     );

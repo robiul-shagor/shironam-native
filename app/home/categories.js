@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, useColorScheme } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
@@ -12,6 +12,12 @@ const CategoriesPage = () => {
     const [data, setData] = useState([]); 
     const { user, logOut, langMode } = useAuth();
     const router = useRouter();
+    const colorScheme = useColorScheme();
+
+    const bgStyle = colorScheme === 'light' ? styles.bgWhite : styles.bgDark;
+    const textStyle = colorScheme === 'light' ? styles.textDark : styles.textWhite;
+    const borderStyle = colorScheme === 'light' ? styles.borderDark : styles.borderWhite;
+    const iconsStyle = colorScheme === 'light' ? '#191919' : 'white';
 
     const makeLowercase = ( item ) => {
         return item.split(" ").join("-").toLowerCase()
@@ -56,34 +62,22 @@ const CategoriesPage = () => {
         getCategory();
     }, [])
 
-    const sections = [
-        {
-          title: 'Section 1',
-          content: 'Content for section 1...',
-        },
-        {
-          title: 'Section 2',
-          content: 'Content for section 2...',
-        },
-        // Add more sections as needed
-    ];
-
     return (
         <ScrollView>
-            <View style={ styles.parentContainer }>
+            <View style={ [styles.parentContainer, bgStyle] }>
                 {data.map((section, index) => (
-                <View key={index} style={styles.mainAccordian}>
+                <View key={index} style={[styles.mainAccordian, borderStyle]}>
                     <TouchableOpacity onPress={() => toggleAccordion(index)}>
                         <View style={styles.accordianTitle}>
-                            <Text>{ langMode == 'BN' ? section.name_bn : section.name_en }</Text>
-                            <FontAwesomeIcon icon={faAngleDown} size={13} style={{ transform: [{ rotate: expanded === index ? '180deg' : '0deg' }] }} />
+                            <Text style={[{fontSize: 16}, textStyle]}>{ langMode == 'BN' ? section.name_bn : section.name_en }</Text>
+                            <FontAwesomeIcon icon={faAngleDown} color={iconsStyle} size={15} style={{ transform: [{ rotate: expanded === index ? '180deg' : '0deg' }] }} />
                         </View>
                     </TouchableOpacity>
                     {expanded === index && (
                     <View style={styles.accodianContent}>
                         {section?.interest.map((item, i) => (
-                            <Link href={`/subcategory/${makeLowercase(item.name_en)}`} key={i} style={styles.itemEle}>
-                                <Text>
+                            <Link href={`/subcategory/${makeLowercase(item.name_en).replace(/\s+/g, '-')}`} key={i} style={styles.itemEle}>
+                                <Text style={[{fontSize: 15, paddingHorizontal: 15}, textStyle]}>
                                     - { langMode == 'BN' ? item.name_bn : item.name_en }
                                 </Text>
                             </Link>
@@ -100,12 +94,23 @@ const CategoriesPage = () => {
 export default CategoriesPage
 
 const styles = StyleSheet.create({
-    parentContainer: {
+    bgWhite: {
         backgroundColor: 'white',
+    },
+    bgDark: {
+        backgroundColor: '#272727',
+    },    
+    textWhite: {
+        color: 'white',
+    },
+    textDark: {
+        color: '#191919',
+    },
+    parentContainer: {
         height: '100%',
         flex: 1,
-        marginHorizontal: 10,
-        marginVertical: 10
+        paddingHorizontal: 10,
+        paddingVerticalVertical: 10
     },
     accordianTitle: {
         flex: 1,
@@ -118,11 +123,16 @@ const styles = StyleSheet.create({
         paddingTop: 0
     },
     mainAccordian: {
-        borderBottomColor: '#ddd',
         borderBottomWidth: 1
     },
     itemEle: {
         paddingHorizontal: 3,
         paddingVertical: 3
-    }
+    },
+    borderWhite: {
+        borderBottomColor: '#191919',
+    },
+    borderDark: {
+        borderBottomColor: '#dddddd',
+    },
 })

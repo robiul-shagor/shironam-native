@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, useColorScheme } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import axios from '../../api/axios'
 import { useAuth } from '../../context/auth'
@@ -16,6 +16,9 @@ const MyInterests = () => {
   const [parnetInterest, setParnetInterest] = useState(false);
 
   const { user, langMode } = useAuth();
+  const colorScheme = useColorScheme();
+  const bgColor = colorScheme === 'light' ? 'white' : '#272727';
+  const textColor = colorScheme === 'light' ? '#191919' : 'white';
 
   // Handle Main checkbox item change
   const handleCheckboxChange = (index) => {
@@ -182,9 +185,9 @@ const MyInterests = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.mainHeading}>{langMode == 'BN' ? 'আপনার আগ্রহ সেট করুন' : 'Set your interest'}</Text>
-      <Text style={styles.subHeading}>{langMode == 'BN' ? 'আপনার শীর্ষ আগ্রহের খবর নির্বাচন করুন' : 'Select your top interest news'}</Text>
+    <View style={[styles.container, { backgroundColor: bgColor }]}>
+      <Text style={[styles.mainHeading, { color: textColor }]}>{langMode == 'BN' ? 'আপনার আগ্রহ সেট করুন' : 'Set your interest'}</Text>
+      <Text style={[styles.subHeading, { color: textColor }]}>{langMode == 'BN' ? 'আপনার শীর্ষ আগ্রহের খবর নির্বাচন করুন' : 'Select your top interest news'}</Text>
 
       {isCheckedList.length > 0 ? (
         <View>
@@ -197,14 +200,14 @@ const MyInterests = () => {
                   onValueChange={() => handleCheckboxChange(index)}
                   color={isCheckedList[index] ? '#4630EB' : undefined}
                 />
-                <Text style={styles.paragraph}>{ langMode == 'BN' ? item.name_bn : item.name_en }</Text>
+                <Text style={[styles.paragraph, { color: textColor }]}>{ langMode == 'BN' ? item.name_bn : item.name_en }</Text>
               </View>
 
               <View>
                 {isCheckedList[index] && (
-                  <View style={styles.subCategory}>
+                  <View style={[styles.subCategory, { backgroundColor: colorScheme === 'light' ? '#f8f8f8' : 'black', borderColor: colorScheme === 'light' ? '#f8f8f8' : 'black' }]}>
                     <View>
-                      <Text>{langMode == 'BN' ? 'সাব ক্যাটাগরি নির্বাচন করুন' : 'Select Sub Categories'}</Text>
+                      <Text style={{ color: textColor }}>{langMode == 'BN' ? 'সাব ক্যাটাগরি নির্বাচন করুন' : 'Select Sub Categories'}</Text>
                     </View>
                     <View>
                       {
@@ -221,7 +224,7 @@ const MyInterests = () => {
                                   (selectedValue) => selectedValue.parentCategoryId === item.id && selectedValue.value === `${data.name_en}-${item.id}`
                                 ) ? '#4630EB' : undefined}
                               />
-                              <Text style={styles.paragraph}>{ langMode == 'BN' ? data.name_bn : data.name_en }</Text>
+                              <Text style={[styles.paragraph, { color: textColor }]}>{ langMode == 'BN' ? data.name_bn : data.name_en }</Text>
                             </View>
                           </View>
                         ))
@@ -262,10 +265,8 @@ export default MyInterests
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 15,
     padding: 30,
     backgroundColor: 'white',
-    marginTop: 15
   },  
   section: {
     flexDirection: 'row',

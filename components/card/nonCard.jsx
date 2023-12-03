@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, Share, Alert } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, Share, Alert, useColorScheme } from 'react-native'
 import React, { useState, useCallback } from 'react'
 import ImageBlurLoading from 'react-native-image-blur-loading'
 import { images } from '../../constants'
 import NonUserQuery from '../../query/nonUserQuery'
 import * as WebBrowser from 'expo-web-browser';
-import moment from 'moment';
+import moment from 'moment/min/moment-with-locales';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faClock } from '@fortawesome/free-solid-svg-icons';
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
@@ -18,6 +18,11 @@ const NonCard = () => {
   const { loading, error, news } = NonUserQuery(query);
   const {langMode} = useAuth();
   const [refreshing, setRefreshing] = useState(false)
+  const colorScheme = useColorScheme();
+
+  const iconsColors = colorScheme === 'light' ? 'black' : 'white';
+  const textColors = colorScheme === 'light' ? styles.textDark : styles.textWhite;
+  const borderColor = colorScheme === 'light' ? styles.borderBottomBlack : styles.borderBottomWhite;
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -29,7 +34,7 @@ const NonCard = () => {
   //Card Items
   const CardItems = ({ item }) => {
     return(
-      <View className="post-item group max-[767px]:p-6 bg-white dark:bg-transparent max-[767px]:dark:bg-[#1E1E1E]" key={item.key} data-id={item.id} style={{marginBottom: 15}}>
+      <View className="post-item group max-[767px]:p-6 bg-white dark:bg-transparent max-[767px]:dark:bg-[#1E1E1E]" key={item.key} data-id={item.id} style={{paddingBottom: 15}}>
         <View className={ item?.ads_image ? 'post-body ads' : 'post-body' }>
           {item?.ads_image || item.thumbnail ? (
             <TouchableOpacity onPress={() => item.action_url && WebBrowser.openBrowserAsync(item.action_url)}>
@@ -64,33 +69,33 @@ const NonCard = () => {
               </Text>
             </View>
         ) : (
-          <View style={styles.container2}>
+          <View style={[styles.container2, borderColor]}>
             <View style={styles.row}>
               <View style={styles.column}>
                 <View style={styles.iconoloumn}>
-                  <FontAwesomeIcon icon={faClock} style={{marginRight: 5, fontSize: 10, opacity: 0.6}} />
-                  <Text style={styles.timeText}>
-                    {moment(item.datetime).startOf('second').fromNow(true)}
+                  <FontAwesomeIcon icon={faClock} color={ iconsColors } style={{marginRight: 5, opacity: 0.6}} size={18} />
+                  <Text style={[styles.timeText, textColors]}>
+                    { langMode == 'BN' ? moment(new Date(item.datetime)).startOf('seconds').locale('bn-bd').fromNow() : moment(new Date(item.datetime)).startOf('seconds').locale("en").fromNow() }
                   </Text>
                 </View>
                 <TouchableOpacity style={styles.readMoreLink} onPress={() => navigation.navigate('Login')}>
                   <View style={styles.iconoloumn}>
-                    <Text style={styles.readMoreText}>
+                    <Text style={[styles.readMoreText, textColors]}>
                       {langMode == 'BN' ? 'বিস্তারিত' : 'Read More'}
                     </Text>
-                    <FontAwesomeIcon icon={faArrowUp} style={{marginRight: 5, fontSize: 10, opacity: 0.6, transform: [{ rotate: '45deg' }]}} />
+                    <FontAwesomeIcon icon={faArrowUp} color={iconsColors} style={{marginRight: 5, opacity: 0.6, transform: [{ rotate: '45deg' }]}} size={18} />
                   </View>
                 </TouchableOpacity>
               </View>
               
               {item?.ads && (
                 <View style={styles.column}>
-                  <Text style={styles.sponsoredText}>
+                  <Text style={[styles.sponsoredText, textColors]}>
                     {langMode == 'BN' ? 'সৌজন্যে:' : 'Sponsored:'}
                   </Text>
                   <TouchableOpacity style={styles.sponsorLink}>
                     <Image source={{ uri: item.ads.sponsor_image }} style={styles.sponsorImage} />
-                    <Text style={styles.sponsorName}>{item.ads.sponsor}</Text>
+                    <Text style={[styles.sponsorName, textColors]}>{item.ads.sponsor}</Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -98,10 +103,10 @@ const NonCard = () => {
               <View style={styles.column}>
                 <TouchableOpacity style={styles.shareLink} onPress={(e) => socialShareHandle(e, item.id)}>
                   <View style={styles.iconoloumn}>
-                    <Text style={styles.shareText}>
+                    <Text style={[styles.shareText, textColors]}>
                       {langMode == 'BN' ? 'শেয়ার' : 'Share'}
                     </Text>
-                    <FontAwesomeIcon icon={faShare} style={{marginLeft: 5, fontSize: 10, opacity: 0.6 }} />
+                    <FontAwesomeIcon icon={faShare} color={iconsColors} style={{marginLeft: 5, fontSize: 10, opacity: 0.6 }} size={18} />
                   </View>
                 </TouchableOpacity>
               </View>
@@ -186,7 +191,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     paddingTop: 7,
     paddingBottom: 5,
-  },row: {
+  },
+  borderBottomBlack: {
+    borderBottomColor: '#131313'
+  },
+  borderBottomWhite: {
+    borderBottomColor: '#f8f8f8'
+  },
+  row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -196,7 +208,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   timeText: {
-    fontSize: 14,
+    fontSize: 16,
     marginRight: 10,
   },
   readMoreLink: {
@@ -204,10 +216,11 @@ const styles = StyleSheet.create({
   },
   readMoreText: {
     fontWeight: 'normal',
-    fontSize: 13,
+    fontSize: 15,
+    marginTop: -6,
   },
   sponsoredText: {
-    fontSize: 13,
+    fontSize: 15,
     color: 'black', // Change to your desired text color
   },
   sponsorLink: {
@@ -232,6 +245,15 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   shareText: {
-    fontSize: 13, // Change to your desired link color
+    fontSize: 15, // Change to your desired link color
   },
+  headingBold: {
+    fontSize: 18
+  },
+  textWhite: {
+    color: 'white'
+  },
+  textDark: {
+    color: '#131313'
+  }
 })

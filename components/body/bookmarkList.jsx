@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View, Share, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Share, useColorScheme, ActivityIndicator, TouchableOpacity } from 'react-native'
 import React, { useState, useEffect } from 'react'
-import moment from 'moment'
+import moment from 'moment/min/moment-with-locales';
 import axios from '../../api/axios'
 import ImageBlurLoading from 'react-native-image-blur-loading'
 import * as WebBrowser from 'expo-web-browser';
@@ -20,6 +20,9 @@ const BookmarkList = () => {
   const [bookmark, setBookmark] = useState([]);
   const [regenerateData, setRegenerateData] = useState(false);
   const [loading, setLoading] = useState(true);
+  const colorScheme = useColorScheme();
+  const bgColor = colorScheme === 'light' ? 'white' : '#272727';
+  const textColor = colorScheme === 'light' ? '#191919' : 'white';
   
   const { user, langMode } = useAuth();
 
@@ -62,7 +65,6 @@ const BookmarkList = () => {
           },
         })
         .then(res => {
-          console.log(res)
           if (res.data.status === 'Success') {
             setRegenerateData(true);
             setLoading(false);
@@ -114,18 +116,18 @@ const BookmarkList = () => {
           <View style={styles.row}>
             <View style={styles.column}>
               <View style={styles.iconoloumn}>
-                <FontAwesomeIcon icon={faClock} style={{marginRight: 5, fontSize: 10, opacity: 0.6}} size={12} />
-                <Text style={styles.timeText}>
-                  {moment(item.publish_date).fromNow(true)}
+                <FontAwesomeIcon color={textColor} icon={faClock} style={{marginRight: 5, fontSize: 10, opacity: 0.6}} size={16} />
+                <Text style={[styles.timeText, { color: textColor }]}>
+                  { langMode == 'BN' ? moment(new Date(item.date)).startOf('seconds').locale('bn-bd').fromNow() : moment(new Date(item.date)).startOf('seconds').locale("en").fromNow() }
                 </Text>
               </View>
               
               <TouchableOpacity style={styles.readMoreLink} onPress={() => item.source && WebBrowser.openBrowserAsync(item.source) }>
                 <View style={styles.iconoloumn}>
-                  <Text style={styles.readMoreText}>
+                  <Text style={[styles.readMoreText, { color: textColor }]}>
                     {langMode == 'BN' ? 'উৎস দেখুন' : 'View Source'}
                   </Text>
-                  <FontAwesomeIcon icon={faArrowUp} style={{marginRight: 5, opacity: 0.6, transform: [{ rotate: '45deg' }]}} size={12} />
+                  <FontAwesomeIcon color={textColor} icon={faArrowUp} style={{marginRight: 5, opacity: 0.6, transform: [{ rotate: '45deg' }]}} size={16} />
                 </View>
               </TouchableOpacity>
             </View>
@@ -133,13 +135,13 @@ const BookmarkList = () => {
             <View style={styles.column}>
               <TouchableOpacity style={styles.shareLink} onPress={(e) => removeBookmarkHandle(item.news_id)}>
                 <View style={styles.socialBookmark}>
-                  <FontAwesomeIcon icon={faTrashAlt} style={styles.innerBookmark} size={11} />
+                  <FontAwesomeIcon icon={faTrashAlt} style={styles.innerBookmark} size={16} />
                 </View>
               </TouchableOpacity>                
               
               <TouchableOpacity style={styles.shareLink} onPress={(e) => socialShareHandle(e, item)}>
                 <View style={styles.socialIcons}>
-                  <FontAwesomeIcon icon={faShare} style={styles.innerSocial} size={11} />
+                  <FontAwesomeIcon icon={faShare} style={styles.innerSocial} size={16} />
                 </View>
               </TouchableOpacity>
             </View>
@@ -150,10 +152,10 @@ const BookmarkList = () => {
   };
 
   return (
-    <View style={{paddingHorizontal: 15}}>
-      <Text className="text-xl font-bold ml-0 mt-5 mb-5">{langMode === 'BN' ? 'আমার বুকমার্ক' : 'My Bookmarks'}</Text>
+    <View style={[{paddingHorizontal: 0}, { backgroundColor: bgColor }]}>
+      <Text className="text-xl font-bold mt-5 mb-5 ml-5" style={{color: textColor}}>{langMode === 'BN' ? 'আমার বুকমার্ক' : 'My Bookmarks'}</Text>
 
-      { bookmark?.map((item, index) => (
+      { !loading && bookmark?.map((item, index) => (
         <CardItems item={item} key={index} />
       )) }
 
@@ -203,7 +205,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   timeText: {
-    fontSize: 14,
+    fontSize: 16,
     marginRight: 10,
   },
   readMoreLink: {
@@ -211,7 +213,9 @@ const styles = StyleSheet.create({
   },
   readMoreText: {
     fontWeight: 'normal',
-    fontSize: 13,
+    fontSize: 15,
+    marginTop: -6,
+    marginRight: 2
   },
   sponsoredText: {
     fontSize: 13,
@@ -283,5 +287,9 @@ const styles = StyleSheet.create({
   categoryViewParent: {
     flexDirection: 'row',
     alignItems: 'center',
-  }
+  }, 
+  headingBold: {
+    fontSize: 20,
+    lineHeight: 30
+  },
 })

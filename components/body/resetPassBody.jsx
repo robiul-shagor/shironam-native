@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, TextInput, useColorScheme } from 'react-native'
 import React, { useState } from 'react'
 import { useRouter, Link } from 'expo-router';
 import axios from '../../api/axios';
@@ -16,6 +16,10 @@ const ResetPassBody = () => {
 
     const {langMode} = useAuth();
     const router = useRouter();
+    const colorScheme = useColorScheme();
+    const bgColor = colorScheme === 'light' ? 'white' : '#272727';
+    const textColor = colorScheme === 'light' ? '#191919' : 'white';
+
 
     const handleResetPass = async() => {
         try {
@@ -35,18 +39,18 @@ const ResetPassBody = () => {
     };
 
     return (
-        <View className="flex-1 items-center justify-center py-12 px-10">
+        <View className="flex-1 py-12 px-10 h-screen" style={{backgroundColor: bgColor}}>
             <View className="form-title">
-                <Text className="text-2xl font-semibold mb-2 leading-none text-center">
+                <Text className="text-2xl font-semibold mb-2 leading-none text-center" style={{color: textColor}}>
                     { langMode == 'BN' ? 'পাসওয়ার্ড রিসেট করুন' : 'Reset Password' }
                 </Text>
 
-                <Text className="text-black text-center">
+                <Text className="text-center" style={{color: textColor}}>
                     { langMode == 'BN' ? 'আপনার ইমেল, নতুন পাসওয়ার্ড এবং ওটিপি কোড লিখুন যা আপনি এইমাত্র ইমেলে পেয়েছেন' : 'Enter your email, new password and OTP code which you just recive in email' }
                 </Text>
     
                 <View className="form-group mt-6">
-                    <Text>
+                    <Text style={{color: textColor}}>
                     {langMode == 'BN' ? 'ইমেইল' : 'Email Address'}
                     <Text style={{ color: '#ff0000' }}>*</Text>
                     </Text>
@@ -65,7 +69,7 @@ const ResetPassBody = () => {
                 </View>       
 
                 <View className="form-group mt-6">
-                    <Text>
+                    <Text style={{color: textColor}}>
                         {langMode == 'BN' ? 'পাসওয়ার্ড' : 'Password'}
                         <Text style={{ color: '#ff0000' }}>*</Text>
                     </Text>
@@ -80,7 +84,7 @@ const ResetPassBody = () => {
                 </View>          
                 
                 <View className="form-group mt-6">
-                    <Text>
+                    <Text style={{color: textColor}}>
                         { langMode == 'BN' ? 'পাসওয়ার্ড নিশ্চিত করুন' : 'Confirm Password' }
                         <Text style={{ color: '#ff0000' }}>*</Text>
                     </Text>
@@ -95,7 +99,7 @@ const ResetPassBody = () => {
                 </View>
 
                 <View className="form-group mt-6">
-                    <Text>
+                    <Text style={{color: textColor}}>
                         { langMode == 'BN' ? 'ওটিপি কোড' : 'OTP Code'}
                         <Text style={{ color: '#ff0000' }}>*</Text>
                     </Text>
@@ -111,11 +115,11 @@ const ResetPassBody = () => {
                 </View> 
 
                 { status == "Error" && (
-                    <View><Text>{message}</Text></View>
+                    <View><Text style={{color: textColor}}>{message}</Text></View>
                 ) }       
 
                 { status == "success" && (
-                    <View><Text>{message}</Text></View>
+                    <View><Text style={{color: textColor}}>{message}</Text></View>
                 ) }   
             
                 <View className="form-group mt-6">
