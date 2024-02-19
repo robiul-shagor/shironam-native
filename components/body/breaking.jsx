@@ -1,23 +1,22 @@
-import { StyleSheet, Text, View, useColorScheme } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import { StyleSheet, Text, View, useColorScheme, Image } from 'react-native'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from '../../context/auth';
 import axios from '../../api/axios';
-import {Ticker} from 'react-native-ticker-tape';
-import { Link } from 'expo-router';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faThLarge } from '@fortawesome/free-solid-svg-icons';
-import { faBolt } from '@fortawesome/free-solid-svg-icons';
-import { faBullhorn } from '@fortawesome/free-solid-svg-icons';
-
+import Swiper from 'react-native-swiper';
+import { images } from '../../constants';
+import { Skeleton } from 'moti/skeleton';
 
 const Breaking = () => {
     const { user, langMode } = useAuth();
     const [newsItem, setNewsItem ] = useState([]);
     const colorScheme = useColorScheme();
+    const [loading, setLoading] = useState(true);
 
     const bgColors = colorScheme === 'light' ? styles.containerWhite : styles.containerDark;
     const textColors = colorScheme === 'light' ? styles.textDark : styles.textWhite;
-    const iconColors = colorScheme === 'light' ? 'black' : 'white';
+    const imageBG = colorScheme === 'light' ? images.BreakingImage : images.BreakingImageDark;
+    const themeStyle = colorScheme === 'light' ? 'light' : 'dark';
+
 
     const getData = async() => {
         if (user?.token) {
@@ -29,20 +28,19 @@ const Breaking = () => {
                     }
                 };
 
-                await axios.get('/breaking-news', config)
-                .then(res => {
-                    setNewsItem(res.data.data);
-                });
+                const response = await axios.get('/breaking-news', config);
+                const data = response.data.data;
+                setNewsItem(data);
+                setLoading(false);
             } catch (e) {
                 console.log(e);
             }
         } else {
             try {    
-                await axios.get('/breaking-news-without-authentication', {})
-                .then(res => {
-                    setNewsItem(res.data.data);
-                });
-    
+                const response = await axios.get('/breaking-news-without-authentication', {});
+                const data = response.data.data;
+                setNewsItem(data);
+                setLoading(false);
             } catch (e) {
                 console.log(e);
             }
@@ -50,53 +48,44 @@ const Breaking = () => {
     };
 
     useEffect(() => {
-        getData();
+        const data = async() => {
+            await getData();
+        }
+        data();
     }, [])
 
     return (
-        <View className="pt-5 pb-6" style={ bgColors }>
-            <View className="slider-title flex" style={{ flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: '#f9020b' }}>
-                <View style={{ flexDirection: 'row' }}>
-                    <Text className="text-white inline-block px-8 py-3" style={{ backgroundColor: '#f9020b' }}>{ langMode == 'BN' ? 'ব্রেকিং' : 'Breakings'}</Text>
-                </View>
-                <View style={{
-                    paddingLeft: 5, 
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: 20,
-                    marginTop: 10
-                }}>
-                    <Ticker msPerPX={50}>
-                    { newsItem.map( (news, index) => (
-                        <Text key={ index } style={textColors}>{ langMode == 'BN' ? news.summary_bn : news.summary_en}&nbsp;|&nbsp;</Text>
-                    ) ) }
-                    </Ticker>
-                </View>
+        <View style={ [bgColors, { marginBottom: 30, marginTop: 20, marginHorizontal: 15  }] }>
+            <View className="p-5">
+                { loading ? (
+                    <Skeleton.Group show={true}>
+                        <View className="mb-1">
+                            <Skeleton radius="square" colorMode={themeStyle}>
+                                <Text>Lorem ipsum dolor</Text>
+                            </Skeleton>
+                        </View>     
+                        <View className="mb-1">
+                            <Skeleton radius="square" colorMode={themeStyle}>
+                                <Text>Lorem ipsum dolor</Text>
+                            </Skeleton>
+                        </View>
+                        <View className="mb-1">
+                            <Skeleton radius="square" colorMode={themeStyle}>
+                                <Text>Lorem ipsum dolor</Text>
+                            </Skeleton>
+                        </View>
+                    </Skeleton.Group>
+                ) : (
+                    <Swiper autoplay={true} loop={true} height="auto" automaticallyAdjustContentInsets={true} showsButtons={false} showsPagination={false}>
+                        { newsItem.map( (news, index) => (
+                            <View key={ index } className="flex flex-row" style={bgColors}>
+                                <Text style={[textColors, {fontSize: 14, textAlign: 'center', lineHeight: 23}]}><Text style={{color: '#ff1c22', fontWeight: 'bold'}}>// </Text>{ langMode == 'BN' ? news.summary_bn : news.summary_en}</Text>
+                            </View>
+                        ) ) }
+                    </Swiper> 
+                ) }
             </View>
-            
-            <View className="flex flex-row flex-wrap gap-2 pt-5">
-                <Link href='/home' className="transition-all" style={styles.linkItem}>
-                    <View style={styles.menuItem}>
-                        <FontAwesomeIcon size={14} icon={faThLarge} color={'white'} style={{marginRight: 5}} />
-                        <Text style={{color: '#fff', fontSize: styles.textSize.fontSize}}>{ langMode == 'BN' ? 'ঘটনাচক্র' : 'News Feed'}</Text>
-                    </View>
-                </Link>
-
-                <Link href={ user?.token ? '/todayNews' : '/login' } className="transition-all" style={styles.nonActive}>
-                    <View style={styles.menuItem}>
-                        <FontAwesomeIcon icon={faBolt} size={14} style={{marginRight: 5 }} color={iconColors} />
-                        <Text style={[styles.textSize, textColors]}>{ langMode == 'BN' ? 'আজকের খবর' : 'Today News'}</Text>
-                    </View>
-                </Link>                    
-                
-                <Link href={ user?.token ? '/breaking' : '/login' }  className="transition-all" style={styles.nonActive}>
-                    <View style={styles.menuItem}>
-                        <FontAwesomeIcon icon={faBullhorn} size={14} style={{marginRight: 5 }} color={iconColors} />
-                        <Text style={[styles.textSize, textColors]}>{ langMode == 'BN' ? 'ব্রেকিং নিউজ' : 'Breakings'}</Text>
-                    </View>
-                </Link>
-            </View>
+            <Image source={ imageBG } style={{width: '100%', resizeMode: 'contain', marginBottom: -10}} />
         </View>
     )
 }
@@ -138,10 +127,10 @@ const styles = StyleSheet.create({
         top: -1
     },
     containerWhite: {
-
+        backgroundColor: '#ffffff'
     }, 
     containerDark: {
-        backgroundColor: 'black'
+        backgroundColor: '#131313'
     },
     textDark: {
         color: '#131313'

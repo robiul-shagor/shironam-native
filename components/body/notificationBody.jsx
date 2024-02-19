@@ -7,11 +7,15 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'expo-router';
 import moment from 'moment/min/moment-with-locales';
 import axios from '../../api/axios';
+import EmptyNotification from './emptyNotification';
+
 
 const NotificationBody = () => {
     const { user, notificationData, setReFetch, langMode } = useAuth();
     const router = useRouter();
     const colorScheme = useColorScheme();
+
+    const [ loading, setLoading ] = useState();
 
     const bgColor = colorScheme === 'light' ? 'white' : '#272727';
     const bgUnreadColor = colorScheme === 'light' ? '#f0f1f3' : '#191919';
@@ -96,7 +100,7 @@ const NotificationBody = () => {
                 style={{ paddingHorizontal: 15, width: '100%', backgroundColor: bgColor }}
                 ListFooterComponent={
                     <>
-                        <View>
+                        <View className="mb-[80px]">
                             <TouchableOpacity 
                                 onPress={readAllNotification}
                                 style={{
@@ -113,8 +117,10 @@ const NotificationBody = () => {
                                 <Text style={{color: 'white'}}>{langMode == 'BN' ? 'সবগুলো পঠিত বলে সনাক্ত কর' : 'Mark all as read'}</Text>
                             </TouchableOpacity>
                         </View>
-                        <Footer />
                     </>
+                }
+                ListEmptyComponent={
+                    <EmptyNotification />
                 }
             />
         </>

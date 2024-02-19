@@ -1,37 +1,39 @@
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, Share, Alert, Image, useColorScheme, Modal } from 'react-native'
-import React, { useState, useCallback, useRef } from 'react'
-import ImageBlurLoading from 'react-native-image-blur-loading'
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, Share, Alert, useColorScheme, Modal, Image } from 'react-native'
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import UserQuery from '../../query/userQuery'
-import { images } from '../../constants'
-import * as WebBrowser from 'expo-web-browser';
-import moment from 'moment/min/moment-with-locales';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faClock } from '@fortawesome/free-solid-svg-icons';
-import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
-import { faShare } from '@fortawesome/free-solid-svg-icons';
-import { faBookmark } from '@fortawesome/free-solid-svg-icons';
-import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
-import Footer from '../body/footer'
 import { Link, useLocalSearchParams } from 'expo-router'
 import { useAuth } from '../../context/auth'
 import { WebView } from 'react-native-webview';
+import axios from '../../api/axios';
+import MainCard from './mainCard';
+import EmptyComponent from './emptyComponent';
+import { Skeleton } from 'moti/skeleton';
+// import { Image } from 'expo-image';
+
+const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
 const CategoryAllCard = () => {
   const { slug } = useLocalSearchParams();
   const query = slug;
 
-  const type = 'no_filter';
+  const type = 'hash_tag';
   const [pageNumber, setPageNumber] = useState(1)
   const [refreshing, setRefreshing] = useState(false)
+  const [ singleData, setSingleData ] = useState()
+  const [loadFirst, setLoadFirst] = useState(true);
+  const [webLoad, setWebLoad] = useState(true);
+  const [isFollowing, setIsFollowing] = useState('');
+
   const colorScheme = useColorScheme();
   const themeContainerStyle =
   colorScheme === 'light' ? styles.lightContainer : styles.darkContainer;
   const themeTextStyle = colorScheme === 'light' ? styles.lightThemeText : styles.darkThemeText;
   const themeIconStyle = colorScheme === 'light' ? 'black' : 'white';
+  const borderColor = colorScheme === 'light' ? styles.lightBorder : styles.darkBorder;
 
   const { loading, error, news, maxPage, noMore } = UserQuery(query, pageNumber, type);
   const {langMode, user} = useAuth();
-
 
   const [modalVisible, setModalVisible] = useState(false);
   const [urlWeb, setUrlWeb] = useState('');
@@ -110,144 +112,21 @@ const CategoryAllCard = () => {
     }
   };  
 
-  // Card Items
-  const CardItems = ({ item }) => {
-    return(
-      <View className="post-item group max-[767px]:p-6" key={item.key} data-id={item.id} style={themeContainerStyle}>
-        <View className={ item?.ads_image ? 'post-body ads' : 'post-body' }>
-          {item?.ads_image || item.thumbnail ? (
-            <>
-              <ImageBlurLoading
-                thumbnailSource={images.placeholder}
-                source={{ uri: item.ads_image || item.thumbnail }} // Use ads_image if available, otherwise use thumbnail
-                style={{ width: '100%', height: undefined, aspectRatio: 16 / 9 }}
-              />
-              { item?.news_vendor_logo && (
-                <View style={{ flex: 1, position: 'absolute', top: '110%', right: 0 }}>
-                  <ImageBlurLoading
-                    thumbnailSource={images.placeholder}
-                    source={{ uri: item.news_vendor_logo } }
-                    style={{ flex: 1, width: 110, height: 20, resizeMode: 'contain', backgroundColor: 'white' }}
-                  />
-                </View>
-              ) }
-            </>
-          ) : (
-            <>
-              <ImageBlurLoading
-                thumbnailSource={images.placeholder}
-                source={images.placeholder} // Provide a default placeholder image source when both ads_image and thumbnail are empty
-                style={{ width: '100%', height: undefined, aspectRatio: 16 / 9 }}
-              />
-            </>
-          )}
-        </View>
-
-        { !item.ads_image && (
-          <View className="post-category flex text-xl mt-6 dark:text-white" style={styles.categoryViewParent}>
-            <View>
-              <Link href={`category/${item.category_en.toLowerCase().replace(/\s+/g, '-')}`} style={styles.textTheme}>
-                #<Text>{ langMode == 'BN' ? item.category_bn : item.category_en}</Text>
-              </Link>
-            </View>
-
-            {item.sub_category_en && (
-              <View style={styles.categoryView}>                
-                <View>
-                  <FontAwesomeIcon icon={faAngleRight} color={themeIconStyle} style={{marginRight: 5, fontSize: 10, opacity: 0.6}} />
-                </View>            
-                
-                <View>
-                  <Link href={`/subcategory/${makeLowercase(item.sub_category_en)}`}>
-                    <Text style={themeTextStyle}>{ langMode == 'BN' ? item.sub_category_bn : item.sub_category_en}</Text>
-                  </Link>
-                </View>
-              </View>
-            )}
-          </View>
-        )}
-
-        { item?.ads_image ? (
-            <Text className="post-title font-semibold text-md md:text-3xl mt-3 transition-al" style={[styles.headingBold, themeTextStyle]}>{ langMode == 'BN' ? item.title : item.title}</Text>
-        ) : (
-          <Text className={`post-title ${ viewableItems === item.id || item?.is_read ? '' : 'font-bold' } text-md md:text-3xl mt-3 transition-al`} style={[styles.headingBold, themeTextStyle]}>{ langMode == 'BN' ? item.summary_bn : item.summary_en}</Text>
-        ) }
-
-        { item.ads_image ? (
-            <View style={styles.container}>
-              <Text style={[styles.sponsoredText, themeTextStyle]}>
-                {langMode == 'BN' ? 'সৌজন্যে:' : 'Sponsored by:'}{' '}
-                <Text style={[styles.linkText, themeTextStyle]}>{item.sponsor}</Text>
-              </Text>
-            </View>
-        ) : (
-          <View style={styles.container2}>
-            <View style={styles.row}>
-              <View style={styles.column}>
-                <View style={styles.iconoloumn}>
-                  <FontAwesomeIcon icon={faClock} style={{marginRight: 5, fontSize: 10, opacity: 0.6}} color={themeIconStyle} size={12} />
-                  <Text style={[styles.timeText, themeTextStyle]}>
-                    { langMode == 'BN' ? moment(new Date(item.publish_date)).startOf('seconds').locale('bn-bd').fromNow() : moment(new Date(item.publish_date)).startOf('seconds').locale("en").fromNow() }
-                  </Text>
-                </View>
-                
-                <TouchableOpacity style={styles.readMoreLink} onPress={(e) => item.source && openLink(e, item.source) }>
-                  <View style={styles.iconoloumn}>
-                    <Text style={[styles.readMoreText, themeTextStyle]}>
-                      {langMode == 'BN' ? 'বিস্তারিত' : 'Read More'}
-                    </Text>
-                    <FontAwesomeIcon color={themeIconStyle} icon={faArrowUp} style={{marginRight: 5, opacity: 0.6, transform: [{ rotate: '45deg' }]}} size={15} />
-                  </View>
-                </TouchableOpacity>
-              </View>
-              
-              {item?.ads && (
-                <View style={styles.column}>
-                  <Text style={[styles.sponsoredText, themeTextStyle]}>
-                    {langMode == 'BN' ? 'সৌজন্যে:' : 'Sponsored:'}
-                  </Text>
-                  <TouchableOpacity style={styles.sponsorLink}>
-                    <Image source={{ uri: item.ads.sponsor_image }} style={styles.sponsorImage} />
-                    <Text style={[styles.sponsorName, themeTextStyle]}>{item.ads.sponsor}</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-      
-              <View style={styles.column}>
-                <TouchableOpacity style={styles.shareLink} onPress={(e) => bookmarkHandle(e, item)}>
-                  <View style={styles.socialBookmark}>
-                    <FontAwesomeIcon icon={faBookmark} style={[styles.innerBookmark, bookmarkedItems.includes(item.id) ? styles.bookmarkedIcon : (item.book_marks ? styles.bookmarkedIcon : null )]} size={15} />
-                  </View>
-                </TouchableOpacity>                
-                
-                <TouchableOpacity style={styles.shareLink} onPress={(e) => socialShareHandle(e, item)}>
-                  <View style={styles.socialIcons}>
-                    <FontAwesomeIcon color={themeIconStyle} icon={faShare} style={styles.innerSocial} size={15} />
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        ) }
-      </View>
-    )
-  };
-
   // Footer elements
   const renderLoader = () => {
     return(
       <>   
-        { loading ? 
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#f9020b" />
-          </View> : null
-        }   
-
         { error ? 
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text>{langMode == 'BN' ? 'Error' : 'ত্রুটি হচ্ছে...'}</Text>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>
+            <Text style={themeTextStyle}>{langMode == 'BN' ? 'Error' : 'ত্রুটি হচ্ছে...'}</Text>
           </View> : null
-        }     
+        }          
+        
+        { noMore ? 
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>
+            <Text style={themeTextStyle}>{langMode == 'BN' ?  'আর কোন পোস্ট নেই' : 'No More Posts'}</Text>
+          </View> : null
+        }    
       </>
     )
   }
@@ -288,11 +167,92 @@ const CategoryAllCard = () => {
     { onViewableItemsChanged },
   ]);
 
+  const handleLoadStart = () => {
+    setWebLoad(true);
+  };
+
+  const handleLoadEnd = () => {
+    setWebLoad(false);
+  };
+
+  const [ followText, setFollowText ] = useState('');
+
+  const tagsDetails = async()=> {
+    try {
+      if( user?.token ) {
+        const respose = await axios.get(`/hash-tag/${query}`, {headers: {
+          'Authorization': `Bearer ${user.token}`
+        }});
+
+        const resData = respose.data.data;
+        setSingleData(resData);
+        setFollowText(resData.follow);
+        setIsFollowing(resData.follow == 'Follow');
+        setLoadFirst(false);
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  useEffect(()=> {
+    tagsDetails();
+  }, []);
+  
+  const handleFollowing = async() => {
+    try {
+      const response = await axios.post(
+        '/hash-tag-follow',
+        { hash_tag: singleData?.id, follow: isFollowing ? 0 : 1 },
+        {
+          headers: {
+            'Authorization': `Bearer ${user.token}`
+          },
+        }
+      );
+      setIsFollowing(response.data.success == 'Follow')
+      setFollowText(response.data.success);
+    } catch (error) {
+      console.log(error)
+    }
+  }; 
+
+  const HeaderElements = () => {
+    return(
+      <View className="mb-5">
+        <Skeleton show={loadFirst}>
+          <View>
+            <Image 
+              src={singleData?.image } 
+              style={{ width: '100%', height: 120, resizeMode: 'cover' }}
+            />
+          </View>
+          <View style={{backgroundColor: singleData?.background_color ? singleData?.background_color : 'white' }} className="p-4">
+            <View className="flex-row align-middle justify-between">
+              <View style={{backgroundColor: singleData?.background_color ? '#ffffff40' : '#dddddd', paddingHorizontal: 20, paddingVertical: 5, borderRadius: 10, marginBottom: 5}}>
+                <Text style={{color: singleData?.background_color ? 'white' : 'black', fontSize: 18, fontWeight: 700}}>#{langMode == 'BN' ? singleData.name_bn : singleData.name_en }</Text>
+              </View>
+              <View>
+                <TouchableOpacity onPress={handleFollowing} style={{backgroundColor: singleData?.background_color ? '#ffffff40' : '#dddddd', paddingHorizontal: 20, paddingVertical: 5, borderRadius: 10}}>
+                  <Text style={{color: singleData?.background_color ? 'white' : 'black'}}>{isFollowing ? (langMode === 'BN' ? 'আনফলো' : 'Unfollow') : (langMode === 'BN' ? 'ফলো' : 'Follow') }</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View className="mt-3">
+              <Text style={{color: singleData?.background_color ? 'white' : 'black'}}>{langMode == 'BN' ? singleData.description_bn : singleData.description_en }</Text>
+            </View>
+          </View>
+        </Skeleton>
+      </View>
+    );
+  };
+
   return (
-    <>    
+    <View>   
       <FlatList
         data={news}
-        renderItem={({ item }) => <CardItems item={item} />}
+        renderItem={({ item }) => <MainCard item={item} themeContainerStyle={themeContainerStyle} themeTextStyle={themeTextStyle} borderColor={borderColor} themeIconStyle={themeIconStyle} bookmarkedItems={bookmarkedItems} langMode={langMode} viewableItems={viewableItems} openLink={openLink} socialShareHandle={socialShareHandle} bookmarkHandle={bookmarkHandle}  />}
         keyExtractor={(item, index) => index.toString()}
         ListFooterComponent={renderLoader}
         onEndReached={loadMoreItems}
@@ -302,12 +262,19 @@ const CategoryAllCard = () => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         ListEmptyComponent={
-          !loading && <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text>{langMode == 'BN' ?  'এখানে কোন পোস্ট নেই' : 'No Posts Available Here'}</Text>
-          </View>
+          <EmptyComponent />
+        }
+        ListHeaderComponent={
+          singleData && <HeaderElements /> 
         }
         viewabilityConfig={{viewAreaCoveragePercentThreshold: 50}}
         viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs.current}
+        style={{ marginBottom: 0}}
+        initialNumToRender={10}
+        windowSize={5}
+        maxToRenderPerBatch={5}
+        updateCellsBatchingPeriod={30}
+        removeClippedSubviews={false}
       />
 
       <Modal
@@ -318,16 +285,29 @@ const CategoryAllCard = () => {
           setModalVisible(!modalVisible);
         }}
       >
-        <View className="flex flex-row justify-between p-2 align-middle">
+        {webLoad && (
+          <View style={[{ ...StyleSheet.absoluteFillObject, flex: 1, justifyContent: 'center', alignItems: 'center', zIndex: 5}, themeContainerStyle]}>
+            <ActivityIndicator size="large" color="#f9020b" />
+          </View>
+        ) }
+
+        <WebView
+          originWhitelist={['*']}
+          source={{uri:  urlWeb }}
+          style={{marginTop: 20, padding: 20}}
+          onLoadStart={handleLoadStart}
+          onLoadEnd={handleLoadEnd}
+          javaScriptEnabled={true}
+          userAgent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+          thirdPartyCookiesEnabled={true}
+        />
+
+        <View className="flex flex-row justify-between p-2 align-middle z-10 relative">
           <Text style={{fontSize: 18, fontWeight: 'bold'}}>{ langMode == 'BN' ? 'বিস্তারিত' : 'Details' }</Text>
           <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}><Text style={{backgroundColor: 'red', color: 'white', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 5}}>{ langMode == 'BN' ? 'বন্ধ করুন' : 'Close' }</Text></TouchableOpacity>
         </View> 
-        <WebView
-          source={{html: '<iframe width="100%" height="100%" src="'+ urlWeb +'" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>', headers: { 'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148' }}}
-          style={{marginTop: 20, padding: 20}}
-        />
       </Modal>
-    </>
+    </View>
   )
 }
 
@@ -350,9 +330,6 @@ const styles = StyleSheet.create({
     color: 'blue', // Change to your desired link color
   },
   container2: {
-    borderBottomWidth: 2,
-    paddingTop: 7,
-    paddingBottom: 5,
   },row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -363,7 +340,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   timeText: {
-    fontSize: 16,
+    fontSize: 13,
     marginRight: 10,
   },
   readMoreLink: {
@@ -371,7 +348,7 @@ const styles = StyleSheet.create({
   },
   readMoreText: {
     fontWeight: 'normal',
-    fontSize: 15,
+    fontSize: 12,
     marginTop: -6,
   },
   sponsoredText: {
@@ -390,7 +367,6 @@ const styles = StyleSheet.create({
   socialIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f9020b4a',
     width: 25,
     height: 25,
     borderRadius: 100,
@@ -401,7 +377,6 @@ const styles = StyleSheet.create({
   socialBookmark: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F7f7f7',
     width: 25,
     height: 25,
     borderRadius: 100,
@@ -412,7 +387,6 @@ const styles = StyleSheet.create({
   innerSocial: {
     color: '#F9020B',
     fontSize: 10, 
-    opacity: 0.6,
     paddingHorizontal: 3,
     paddingVertical: 3
   },    
@@ -424,7 +398,6 @@ const styles = StyleSheet.create({
   sponsorImage: {
     width: 20,
     height: 20,
-    resizeMode: 'cover',
     marginRight: 5,
   },
   sponsorName: {
@@ -448,8 +421,9 @@ const styles = StyleSheet.create({
     color: '#f9020b', // Example color for bookmarked items
   },
   headingBold: {
-    fontSize: 20,
-    lineHeight: 30
+    fontSize: 15,
+    lineHeight: 26,
+    marginBottom: 10
   },
   darkContainer: {
     backgroundColor: '#1E1E1E'
@@ -457,10 +431,28 @@ const styles = StyleSheet.create({
   lightContainer: {
     backgroundColor: '#FFFFFF'
   },
+  lightBorder: {
+    borderBottomColor: '#ebebeb'
+  },
+  darkBorder: {
+    borderBottomColor: '#1e1e1e'
+  },
   lightThemeText: {
     color: '#101010'
   },
   darkThemeText: {
     color: '#FFFFFF'
+  },
+  nonViewableItem: {
+    fontWeight: 'bold'
+  }, 
+  viewableItem: {
+    fontWeight: 'normal'
+  },
+  bgColor: {
+    backgroundColor: '#ffffff'
+  }, 
+  bgDarkColor: {
+    backgroundColor: '#000000'
   }
 })

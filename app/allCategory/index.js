@@ -4,7 +4,7 @@ import { useAuth } from '../../context/auth'
 import { Link } from 'expo-router'
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
 import { faCompass } from '@fortawesome/free-solid-svg-icons';
-import { Breaking, AllCategory, Footer } from '../../components'
+import { Breaking, AllCategory, Login } from '../../components'
 
 const Index = () => {
     const { user, langMode } = useAuth();
@@ -16,23 +16,12 @@ const Index = () => {
         <>
             {
                 user?.token ? (
-                    <ScrollView>
-                        <View>
-                            <Breaking />
-                            <AllCategory />
-                        </View>
+                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{paddingBottom: 0}}>
+                        <AllCategory />
                     </ScrollView>
                 ) : (
-                    <ScrollView>
-                        <View className="h-screen" style={[styles.container, {backgroundColor: bgColor}]}>
-                            <View style={styles.iconStyle}>
-                                <FontAwesomeIcon icon={faCompass} size={ 40 } color="#f9020b" />
-                            </View>
-                            <View style={styles.textContent}>
-                                <Text style={[styles.paraText, {color: textColor}]}>{langMode == 'BN'? 'সমস্ত বিভাগ দেখতে লগইন করুন' : 'Please login to view All Category'}</Text>
-                                <Link href="/login" style={styles.linkURL}><Text>Login</Text></Link>
-                            </View>
-                        </View>
+                    <ScrollView showsVerticalScrollIndicator={false}>
+                        <Login />
                     </ScrollView>
                 )
             }

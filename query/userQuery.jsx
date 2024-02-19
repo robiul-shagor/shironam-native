@@ -29,6 +29,9 @@ export default function UserQuery(query, pageNumber, type) {
                         break;                    
                     case 'no_filter':
                         totalPosts = await axios.get(`/news-feed-info?category=${query}&no_filter=1`, config)
+                        break;    
+                    case 'hash_tag':
+                        totalPosts = await axios.get(`/news-feed-info?category=${query}&hash_tag=1`, config)
                         break;
                     case 'subcategory':
                         totalPosts = await axios.get(`/news-feed-info?sub_category=${query}`, config)
@@ -59,6 +62,9 @@ export default function UserQuery(query, pageNumber, type) {
                         break;               
                     case 'no_filter':
                         response = await axios.get(`/news-list?paginate=${pageNumber}&no_filter=1&category=${query}`, config);
+                        break;                
+                    case 'hash_tag':
+                        response = await axios.get(`/news-list?paginate=${pageNumber}&hash_tag=${query}`, config);
                         break;
                     case 'subcategory':
                         response = await axios.get(`/news-list?paginate=${pageNumber}&sub_category=${query}`, config);
@@ -77,16 +83,17 @@ export default function UserQuery(query, pageNumber, type) {
                         break;
                 }
 
+                const responseData = response.data;
+
                 setNews(prevItems => {
-                    const existingIds = new Set(prevItems.map(item => item.id));
-                    const uniqueItems = response.data.filter(item => !existingIds.has(item.id));
-                    const updatedNews = [...prevItems, ...uniqueItems];
+                    // const existingIds = new Set(prevItems.map(item => item.id));
+                    // const uniqueItems = response.data.filter(item => !existingIds.has(item.id));
+                    const updatedNews = [...prevItems, ...responseData];
                     return updatedNews;
                 });
 
                 setLoading(false);
                 setNoMore(response.data.length == 0);
-
             } catch (e) {
                 if (e.response && e.response.status === 429) {
                     setLoading(true);
@@ -121,7 +128,10 @@ export default function UserQuery(query, pageNumber, type) {
         setLoading(true);
         setError(false);
 
-        fetchNewsList();
+        const newData = async() => {
+            await fetchNewsList();
+        }
+        newData();
     }, [query, pageNumber, type]);
 
     return { loading, error, news, maxPage, noMore };

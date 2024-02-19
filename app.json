@@ -5,16 +5,25 @@
     "web": {
       "bundler": "metro"
     },
-    "name": "shironam-native",
+    "name": "Shironam",
     "slug": "shironam-native",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
     "android": {
       "package": "com.shironam.app",
-      "versionCode": 1
+      "versionCode": 1,
+      "adaptiveIcon" : {
+        "foregroundImage" : "./assets/images/shironam-icon.png",
+        "backgroundColor" : "#ffffff"
+      }
     },
     "extra": {
       "eas": {
         "projectId": "5fc796e5-d3ac-40b1-b860-6d0ca0aeb51e"
       }
+    },
+    "ios": {
+      "bundleIdentifier": "com.shironam.app"
     }
   }
 }

@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, Alert, Share, Image, useColorScheme, Modal } from 'react-native'
 import React, { useState, useCallback, useRef } from 'react'
-import ImageBlurLoading from 'react-native-image-blur-loading'
 import UserQuery from '../../query/userQuery'
 import { images } from '../../constants'
 import * as WebBrowser from 'expo-web-browser';
@@ -116,15 +115,13 @@ const SubCategoryCard = () => {
         <View className={ item?.ads_image ? 'post-body ads' : 'post-body' }>
           {item?.ads_image || item.thumbnail ? (
             <>
-              <ImageBlurLoading
-                thumbnailSource={images.placeholder}
+              <Image
                 source={{ uri: item.ads_image || item.thumbnail }} // Use ads_image if available, otherwise use thumbnail
                 style={{ width: '100%', height: undefined, aspectRatio: 16 / 9 }}
               />
               { item?.news_vendor_logo && (
                 <View style={{ flex: 1, position: 'absolute', top: '110%', right: 0 }}>
-                  <ImageBlurLoading
-                    thumbnailSource={images.placeholder}
+                  <Image
                     source={{ uri: item.news_vendor_logo } }
                     style={{ flex: 1, width: 110, height: 20, resizeMode: 'contain', backgroundColor: 'white' }}
                   />
@@ -133,8 +130,7 @@ const SubCategoryCard = () => {
             </>
           ) : (
             <>
-              <ImageBlurLoading
-                thumbnailSource={images.placeholder}
+              <Image
                 source={images.placeholder} // Provide a default placeholder image source when both ads_image and thumbnail are empty
                 style={{ width: '100%', height: undefined, aspectRatio: 16 / 9 }}
               />

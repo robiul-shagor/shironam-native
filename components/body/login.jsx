@@ -11,6 +11,7 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [message, setMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
   const { logIn, registerData, langMode } = useAuth();
@@ -149,7 +150,7 @@ const Login = () => {
   }, []);
 
   return (
-    <View className="flex-1 items-center justify-center bg-white h-screen dark:bg-[#272727] dark:text-white py-15 px-10">
+    <View className="flex-1 items-center justify-center bg-[#f8f8f8] h-screen dark:bg-[#272727] dark:text-white px-5">
       <View className="form-title">
         <Text className="text-2xl font-semibold mb-2 leading-none text-center" style={{color: textColor}}>
           { langMode == 'BN' ? 'লগইন' : 'Login'}
@@ -159,7 +160,7 @@ const Login = () => {
         </Text>
 
         <View className="form-group mt-6">
-          <Text style={{color: textColor}}>
+          <Text style={{color: textColor, marginBottom: 5}}>
             {langMode == 'BN' ? 'ইমেইল' : 'Email Address'}
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -176,18 +177,26 @@ const Login = () => {
         </View>          
         
         <View className="form-group mt-6">
-          <Text style={{color: textColor}}>
+          <Text style={{color: textColor, marginBottom: 5}}>
             {langMode == 'BN' ? 'পাসওয়ার্ড' : 'Password'}
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
 
-          <TextInput
-            className="form-control bg-white dark:bg-[#272727] dark:text-white shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={true}
-            required
-          />
+          <View style={{ flexDirection: 'row', alignItems: 'center', position: 'relative' }}>
+            <TextInput
+              className="form-control bg-white dark:bg-[#272727] dark:text-white shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              required
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Text style={{ marginLeft: 0, color: textColor, position: 'absolute', right: 12, bottom: -7, fontSize: 12 }}>
+                {showPassword ? (langMode == 'BN' ? 'লুকান' : 'Hide' )  : (langMode == 'BN' ? 'দেখান' : 'Show' )}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20, marginBottom: 7 }}>
@@ -217,7 +226,7 @@ const Login = () => {
         
         <View className="mt-4">
           <Link href="/login/forgetpass" className="text-center" style={{ textDecorationLine: 'underline', color: textColor }}>
-            { langMode == 'BN' ? 'পাসওয়ার্ড ভুলে গেছেন' : 'Forgot Password'}
+            { langMode == 'BN' ? 'পাসওয়ার্ড ভুলে গেছেন?' : 'Forgot Password?'}
           </Link>
         </View>
 
@@ -225,13 +234,14 @@ const Login = () => {
 
         <View className="mt-4 mb-40">
           <Text className="text-center" style={{color: textColor}}> 
-            { langMode == 'BN' ? 'অ্যাকাউন্ট প্রয়োজন? ' : 'Need Account'}
+            { langMode == 'BN' ? 'অ্যাকাউন্ট প্রয়োজন? ' : 'Need an account? '}
             <Link 
               href="/register"
               style={{
-                textDecorationLine: 'underline'
+                textDecorationLine: 'underline',
+                marginLeft: 5
               }} >
-              { langMode == 'BN' ? 'নিবন্ধন করুন' : 'Sign Up'}
+              { langMode == 'BN' ? 'নিবন্ধন করুন' : 'Let\'s Sign Up'}
             </Link>        
           </Text>
 

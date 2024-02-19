@@ -1,20 +1,14 @@
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, Alert, Share, Image, useColorScheme, Modal } from 'react-native'
-import React, { useState, useCallback, useRef } from 'react'
-import ImageBlurLoading from 'react-native-image-blur-loading'
+import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 import UserQuery from '../../query/userQuery'
 import { images } from '../../constants'
-import moment from 'moment/min/moment-with-locales';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faClock } from '@fortawesome/free-solid-svg-icons';
-import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
-import { faShare } from '@fortawesome/free-solid-svg-icons';
-import { faBookmark } from '@fortawesome/free-solid-svg-icons';
-import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import Breaking from '../body/breaking'
-import { Link } from 'expo-router'
 import { useAuth } from '../../context/auth'
 import axios from '../../api/axios'
 import { WebView } from 'react-native-webview';
+import EmptyComponent from './emptyComponent'
+
+import MainCard from './mainCard';
 
 const UserCard = () => {
   const colorScheme = useColorScheme();
@@ -24,16 +18,29 @@ const UserCard = () => {
   const [refreshing, setRefreshing] = useState(false)
   const { user, langMode } = useAuth();
   const [bookmarkedItems, setBookmarkedItems] = useState([]);
+  const [loadFirst, setLoadFirst] = useState(true);
+
   const themeContainerStyle =
     colorScheme === 'light' ? styles.lightContainer : styles.darkContainer;
   const themeTextStyle = colorScheme === 'light' ? styles.lightThemeText : styles.darkThemeText;
   const themeIconStyle = colorScheme === 'light' ? 'black' : 'white';
+  const placeholder = colorScheme === 'light' ? images.placeholder : images.Darkplaceholder;
+  const screenBg = colorScheme === 'light' ? styles.bgColor : styles.bgDarkColor;
+  const borderColor = colorScheme === 'light' ? styles.lightBorder : styles.darkBorder;
 
   const { loading, error, news, maxPage, noMore } = UserQuery(query, pageNumber, type);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [urlWeb, setUrlWeb] = useState('');
   const [viewableItems, setViewableItems] = useState([]);
+
+  const handleLoadStart = () => {
+    setLoadFirst(true);
+  };
+
+  const handleLoadEnd = () => {
+    setLoadFirst(false);
+  };
 
   // make lowercase function
   const makeLowercase = ( item ) => {
@@ -106,148 +113,19 @@ const UserCard = () => {
     setUrlWeb(url);
   };
 
-  // Card Items
-  const CardItems = ({ item }) => {
-    return(
-      <View className="post-item group max-[767px]:p-6" key={item.key} data-id={item.id} style={themeContainerStyle}>
-        <View className={ item?.ads_image ? 'post-body ads' : 'post-body' }>
-          {item?.ads_image || item.thumbnail ? (
-            <>
-              <ImageBlurLoading
-                thumbnailSource={images.placeholder}
-                source={{ uri: item.ads_image || item.thumbnail }} // Use ads_image if available, otherwise use thumbnail
-                style={{ width: '100%', height: undefined, aspectRatio: 16 / 9 }}
-              />
-              { item?.news_vendor_logo && (
-                <View style={{ flex: 1, position: 'absolute', top: '110%', right: 0 }}>
-                  <ImageBlurLoading
-                    thumbnailSource={images.placeholder}
-                    source={{ uri: item.news_vendor_logo } }
-                    style={{ flex: 1, width: 110, height: 20, resizeMode: 'contain', backgroundColor: 'white' }}
-                  />
-                </View>
-              ) }
-            </>
-          ) : (
-            <>
-              <ImageBlurLoading
-                thumbnailSource={images.placeholder}
-                source={images.placeholder} // Provide a default placeholder image source when both ads_image and thumbnail are empty
-                style={{ width: '100%', height: undefined, aspectRatio: 16 / 9 }}
-              />
-            </>
-          )}
-        </View>
-
-        { !item.ads_image && (
-          <View className="post-category flex text-xl mt-6 dark:text-white" style={styles.categoryViewParent}>
-            <View>
-              <Link href={`category/${item.category_en.toLowerCase().replace(/\s+/g, '-')}`} style={styles.textTheme}>
-                #<Text>{ langMode == 'BN' ? item.category_bn : item.category_en}</Text>
-              </Link>
-            </View>
-
-            {item.sub_category_en && (
-              <View style={styles.categoryView}>                
-                <View>
-                  <FontAwesomeIcon icon={faAngleRight} color={themeIconStyle} style={{marginRight: 5, fontSize: 10, opacity: 0.6}} />
-                </View>            
-                
-                <View>
-                  <Link href={`/subcategory/${makeLowercase(item.sub_category_en)}`}>
-                    <Text style={themeTextStyle}>{ langMode == 'BN' ? item.sub_category_bn : item.sub_category_en}</Text>
-                  </Link>
-                </View>
-              </View>
-            )}
-          </View>
-        )}
-
-        { item?.ads_image ? (
-            <Text className={`post-title font-bold text-md md:text-3xl mt-3 transition-al`} style={[styles.headingBold, themeTextStyle]}>{ langMode == 'BN' ? item.title : item.title}</Text>
-        ) : (
-            <Text className={`post-title ${ viewableItems === item.id || item?.is_read ? '' : 'font-bold' } text-md md:text-3xl mt-3 transition-al`} style={[styles.headingBold, themeTextStyle]}>{ langMode == 'BN' ? item.summary_bn : item.summary_en}</Text>
-        ) }
-
-        { item.ads_image ? (
-            <View style={styles.container}>
-              <Text style={[styles.linkText, themeTextStyle]}>
-                {langMode == 'BN' ? 'সৌজন্যে:' : 'Sponsored by:'}{' '}
-                <Text style={[styles.linkText, themeTextStyle]}>{item.sponsor}</Text>
-              </Text>
-            </View>
-        ) : (
-          <View style={styles.container2}>
-            <View style={styles.row}>
-              <View style={styles.column}>
-                <View style={styles.iconoloumn}>
-                  <FontAwesomeIcon icon={faClock} style={{marginRight: 5, fontSize: 10, opacity: 0.6}} color={themeIconStyle} size={12} />
-                  <Text style={[styles.timeText, themeTextStyle]}>
-                    { langMode == 'BN' ? moment(new Date(item.publish_date)).startOf('seconds').locale('bn-bd').fromNow() : moment(new Date(item.publish_date)).startOf('seconds').locale("en").fromNow() }
-                  </Text>
-                </View>
-                
-                <TouchableOpacity style={styles.readMoreLink} onPress={(e) => item.source && openLink(e, item.source) }>
-                  <View style={styles.iconoloumn}>
-                    <Text style={[styles.readMoreText, themeTextStyle]}>
-                      {langMode == 'BN' ? 'বিস্তারিত' : 'Read More'}
-                    </Text>
-                    <FontAwesomeIcon color={themeIconStyle} icon={faArrowUp} style={{marginRight: 5, opacity: 0.6, transform: [{ rotate: '45deg' }]}} size={15} />
-                  </View>
-                </TouchableOpacity>
-              </View>
-              
-              {item?.ads && (
-                <View style={styles.column}>
-                  <Text style={[styles.sponsoredText, themeTextStyle]}>
-                    {langMode == 'BN' ? 'সৌজন্যে:' : 'Sponsored:'}
-                  </Text>
-                  <TouchableOpacity style={styles.sponsorLink}>
-                    <Image source={{ uri: item.ads.sponsor_image }} style={styles.sponsorImage} />
-                    <Text style={[styles.sponsorName, themeTextStyle]}>{item.ads.sponsor}</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-      
-              <View style={styles.column}>
-                <TouchableOpacity style={styles.shareLink} onPress={(e) => bookmarkHandle(e, item)}>
-                  <View style={styles.socialBookmark}>
-                    <FontAwesomeIcon icon={faBookmark} style={[styles.innerBookmark, bookmarkedItems.includes(item.id) ? styles.bookmarkedIcon : (item.book_marks ? styles.bookmarkedIcon : null )]} size={15} />
-                  </View>
-                </TouchableOpacity>                
-                
-                <TouchableOpacity style={styles.shareLink} onPress={(e) => socialShareHandle(e, item)}>
-                  <View style={styles.socialIcons}>
-                    <FontAwesomeIcon color={themeIconStyle} icon={faShare} style={styles.innerSocial} size={15} />
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        ) }
-      </View>
-    )
-  };
-
   // Footer elements
   const renderLoader = () => {
     return(
       <>   
-        { loading ? 
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#f9020b" />
-          </View> : null
-        }   
-
         { error ? 
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text>{langMode == 'BN' ? 'Error' : 'ত্রুটি হচ্ছে...'}</Text>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>
+            <Text style={themeTextStyle}>{langMode == 'BN' ? 'Error' : 'ত্রুটি হচ্ছে...'}</Text>
           </View> : null
         }          
         
         { noMore ? 
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text>{langMode == 'BN' ?  'আর কোন পোস্ট নেই' : 'No More Posts'}</Text>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>
+            <Text style={themeTextStyle}>{langMode == 'BN' ?  'আর কোন পোস্ট নেই' : 'No More Posts'}</Text>
           </View> : null
         }    
       </>
@@ -263,11 +141,10 @@ const UserCard = () => {
     setPageNumber(pageNumber + 1);
   };
   
-
   //On View item changed
   const onViewableItemsChanged = (info) => {
     const changedItem = info.viewableItems[0];
-    const id = changedItem.item.id;
+    const id = changedItem?.item?.id;
     const actionUrl = changedItem?.item?.action_url;
     setViewableItems(id);
     if( user?.token ) {
@@ -291,15 +168,19 @@ const UserCard = () => {
     { onViewableItemsChanged },
   ]);
 
+  const renderSectionHeader = ({ section }) => (
+    <Text style={{color: 'white'}}>Title</Text>
+  );
+
   return (
-    <>    
+    <View className="h-screen" style={screenBg}>    
       <FlatList
         data={news}
-        renderItem={({ item }) => <CardItems item={item} />}
-        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => <MainCard item={item} themeContainerStyle={themeContainerStyle} themeTextStyle={themeTextStyle} borderColor={borderColor} themeIconStyle={themeIconStyle} bookmarkedItems={bookmarkedItems} langMode={langMode} viewableItems={viewableItems} openLink={openLink} socialShareHandle={socialShareHandle} bookmarkHandle={bookmarkHandle} />}
+        keyExtractor={(item, index) => (item && item.id ? item.id.toString() : index.toString())}
         ListFooterComponent={renderLoader}
         onEndReached={loadMoreItems}
-        onEndReachedThreshold={0.1}
+        onEndReachedThreshold={0.5}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <Breaking />
@@ -308,14 +189,17 @@ const UserCard = () => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         ListEmptyComponent={
-          !loading && !error && news.length === 0 ? (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <Text>{langMode == 'BN' ? 'এখানে কোন পোস্ট নেই' : 'No Posts Available Here'}</Text>
-            </View>
-          ) : null
+          <EmptyComponent />
         }
         viewabilityConfig={{viewAreaCoveragePercentThreshold: 50}}
         viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs.current}
+        renderSectionHeader={renderSectionHeader}
+        style={{marginBottom: 150}}
+        initialNumToRender={10}
+        windowSize={5}
+        maxToRenderPerBatch={5}
+        updateCellsBatchingPeriod={30}
+        removeClippedSubviews={false}
       />
 
       <Modal
@@ -326,16 +210,30 @@ const UserCard = () => {
           setModalVisible(!modalVisible);
         }}
       >
-        <View className="flex flex-row justify-between p-2 align-middle">
+        {loadFirst && (
+          <View style={[{ ...StyleSheet.absoluteFillObject, flex: 1, justifyContent: 'center', alignItems: 'center', zIndex: 5}, themeContainerStyle]}>
+            <ActivityIndicator size="large" color="#f9020b" />
+          </View>
+        ) }
+
+        <WebView
+          originWhitelist={['*']}
+          source={{uri:  urlWeb }}
+          style={{marginTop: 20, padding: 20}}
+          onLoadStart={handleLoadStart}
+          onLoadEnd={handleLoadEnd}
+          javaScriptEnabled={true}
+          userAgent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+          thirdPartyCookiesEnabled={true}
+          onError={(error) => console.error('WebView Error:', error)}
+        />
+
+        <View className="flex flex-row justify-between p-2 align-middle z-10 relative">
           <Text style={{fontSize: 18, fontWeight: 'bold'}}>{ langMode == 'BN' ? 'বিস্তারিত' : 'Details' }</Text>
           <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}><Text style={{backgroundColor: 'red', color: 'white', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 5}}>{ langMode == 'BN' ? 'বন্ধ করুন' : 'Close' }</Text></TouchableOpacity>
         </View> 
-        <WebView
-          source={{html: '<iframe width="100%" height="100%" src="'+ urlWeb +'" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>', headers: { 'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148' }}}
-          style={{marginTop: 20, padding: 20}}
-        />
       </Modal>
-    </>
+    </View>
   )
 }
 
@@ -358,9 +256,6 @@ const styles = StyleSheet.create({
     color: 'blue', // Change to your desired link color
   },
   container2: {
-    borderBottomWidth: 2,
-    paddingTop: 7,
-    paddingBottom: 5,
   },row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -371,7 +266,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   timeText: {
-    fontSize: 16,
+    fontSize: 13,
     marginRight: 10,
   },
   readMoreLink: {
@@ -379,7 +274,7 @@ const styles = StyleSheet.create({
   },
   readMoreText: {
     fontWeight: 'normal',
-    fontSize: 15,
+    fontSize: 12,
     marginTop: -6,
   },
   sponsoredText: {
@@ -398,7 +293,6 @@ const styles = StyleSheet.create({
   socialIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f9020b4a',
     width: 25,
     height: 25,
     borderRadius: 100,
@@ -409,7 +303,6 @@ const styles = StyleSheet.create({
   socialBookmark: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F7f7f7',
     width: 25,
     height: 25,
     borderRadius: 100,
@@ -420,7 +313,6 @@ const styles = StyleSheet.create({
   innerSocial: {
     color: '#F9020B',
     fontSize: 10, 
-    opacity: 0.6,
     paddingHorizontal: 3,
     paddingVertical: 3
   },    
@@ -456,14 +348,21 @@ const styles = StyleSheet.create({
     color: '#f9020b', // Example color for bookmarked items
   },
   headingBold: {
-    fontSize: 20,
-    lineHeight: 30
+    fontSize: 15,
+    lineHeight: 26,
+    marginBottom: 10
   },
   darkContainer: {
     backgroundColor: '#1E1E1E'
   },
   lightContainer: {
     backgroundColor: '#FFFFFF'
+  },
+  lightBorder: {
+    borderBottomColor: '#ebebeb'
+  },
+  darkBorder: {
+    borderBottomColor: '#1e1e1e'
   },
   lightThemeText: {
     color: '#101010'
@@ -476,5 +375,11 @@ const styles = StyleSheet.create({
   }, 
   viewableItem: {
     fontWeight: 'normal'
+  },
+  bgColor: {
+    backgroundColor: '#f8f8f8'
+  }, 
+  bgDarkColor: {
+    backgroundColor: '#000000'
   }
 })

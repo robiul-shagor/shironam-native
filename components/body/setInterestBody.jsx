@@ -1,10 +1,8 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ActivityIndicator, Image } from 'react-native'
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/auth';
 import axios from '../../api/axios';
 import { useRouter } from 'expo-router';
-import ImageBlurLoading from 'react-native-image-blur-loading'
-import { images } from '../../constants'
 import Checkbox from 'expo-checkbox';
 
 const SetInterestBody = () => {
@@ -130,8 +128,7 @@ const SetInterestBody = () => {
 
             { interestsData?.map((item, index) => (
                 <View key={index} style={ styles.cardContainer }>
-                    <ImageBlurLoading
-                        thumbnailSource={images.placeholder}
+                    <Image
                         source={{ uri: item.image  }} 
                         style={{ width: '100%', height: undefined, aspectRatio: 4 / 3 }}
                     />

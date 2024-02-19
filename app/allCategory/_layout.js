@@ -14,11 +14,11 @@ const AllCategory = () => {
 
     return (
         <>
-            <SafeAreaView>
+            <SafeAreaView style={{backgroundColor: colorScheme === 'light' ? 'white' : '#000000'}}>
                 <Stack.Screen 
                     options={{
                         headerTitle: () => (
-                            <Text style={textStyle}>{ langMode == 'BN' ? 'সমস্ত বিভাগ' : 'All Category'}</Text>
+                            <Text style={[textStyle, { fontSize: 20, fontWeight: 700 }]}>{ langMode == 'BN' ? 'চলমান খবর' : 'Treanding News'}</Text>
                         ),
                         headerRight: () => (
                             <HeaderRight />

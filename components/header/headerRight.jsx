@@ -8,24 +8,27 @@ import { useAuth } from '../../context/auth'
 import { useRouter } from 'expo-router'
 import axios from '../../api/axios'
 import useIntervalAsync from '../../api/useIntervalAsync'
+import { Skeleton } from 'moti/skeleton';
 
 const HeaderRight = () => {
   const { user, baseURL, notificationData, setNotificationData, reFetch, setReFetch, logOut, langMode } = useAuth();
   const router = useRouter();
   const [userImage, setUserImage] = useState(null);
+  const [loading, setLoading] = useState(true);
   const colorScheme = useColorScheme();
   const textColors = colorScheme === 'light' ? 'black' : 'white';
 
-  useEffect(() => {
+  const userProfileImage = useCallback( async() => {
     if (user?.token) {
       // Fetch the user's profile image from the API
-      axios.get('/me', {
+      await axios.get('/me', {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
       })
       .then(res => {
         res.data?.normal_user?.image && setUserImage( baseURL + '/' + res.data.normal_user.image);
+        setLoading(false);
       })
       .catch(error => {
         if (error?.response?.status === 401) {
@@ -46,7 +49,12 @@ const HeaderRight = () => {
       });
     } else {
       setUserImage(null); // Reset userImage when user is not logged in
+      setLoading(false);
     }
+  }, [user, baseURL] )
+
+  useEffect(() => {
+    userProfileImage();
   }, [user, baseURL]);
 
   const handlePress = () => {
@@ -105,18 +113,17 @@ const HeaderRight = () => {
       {user?.token ? (
         <>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <TouchableOpacity onPress={handleSearch} style={{ marginRight: 18 }} >
-              <FontAwesomeIcon icon={faSearch} size={20} color={textColors} />
-            </TouchableOpacity>            
-            <TouchableOpacity onPress={handleNotification} style={{ marginRight: 18, position: 'relative' }} >
-              <FontAwesomeIcon icon={faBell} size={20} color={textColors} />
-              <View style={{position: 'absolute', right: -5, top: -12, backgroundColor: '#f9020b', color: '#ffffff', width: 15, height: 15, borderRadius: 15}}><Text style={{ color: '#ffffff', fontSize: 10, textAlign: 'center' }}>{filteredNotification.length}</Text></View>
-            </TouchableOpacity>          
             <TouchableOpacity onPress={handlePress} style={{ marginRight: 10 }} >
-              { userImage ? (
-                <Image source={{ uri: userImage }} style={{ width: 30, height: 30, borderRadius: 100 }} />
+              { loading ? (
+                <Skeleton show={true} radius="round" width={35} height={35}>
+                  <FontAwesomeIcon icon={faCircleUser} size={20} />
+                </Skeleton>
               ) : (
-                <FontAwesomeIcon icon={faCircleUser} size={18} />
+                userImage ? (
+                  <Image source={{ uri: userImage }} style={{ width: 30, height: 30, borderRadius: 100 }} />
+                ) : (
+                  <FontAwesomeIcon icon={faCircleUser} size={20} />
+                )
               ) }
             </TouchableOpacity>
           </View>

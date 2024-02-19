@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, Alert, Share, Image } from 'react-native'
 import React, { useState, useCallback } from 'react'
-import ImageBlurLoading from 'react-native-image-blur-loading'
 import UserQuery from '../../query/userQuery'
 import { images } from '../../constants'
 import * as WebBrowser from 'expo-web-browser';
@@ -97,21 +96,19 @@ const TagsCard = () => {
       <View className="post-item group max-[767px]:p-6 bg-white dark:bg-transparent max-[767px]:dark:bg-[#1E1E1E]" key={item.key} data-id={item.id} style={{marginBottom: 15}}>
         <View className={ item?.ads_image ? 'post-body ads' : 'post-body' }>
           {item?.ads_image || item.thumbnail ? (
-            <TouchableOpacity onPress={() => item.action_url && WebBrowser.openBrowserAsync( item?.ads_image ? item.action_url : item.source )}>
-              <ImageBlurLoading
-                thumbnailSource={images.placeholder}
+            <>
+              <Image
                 source={{ uri: item.ads_image || item.thumbnail }} // Use ads_image if available, otherwise use thumbnail
                 style={{ width: '100%', height: undefined, aspectRatio: 16 / 9 }}
               />
-            </TouchableOpacity>
+            </>
           ) : (
-            <TouchableOpacity onPress={() => item.source && WebBrowser.openBrowserAsync(item.source) }>
-              <ImageBlurLoading
-                thumbnailSource={images.placeholder}
+            <>
+              <Image
                 source={images.placeholder} // Provide a default placeholder image source when both ads_image and thumbnail are empty
                 style={{ width: '100%', height: undefined, aspectRatio: 16 / 9 }}
               />
-            </TouchableOpacity>
+            </>
           )}
         </View>
 

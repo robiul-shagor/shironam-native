@@ -280,7 +280,7 @@ const EditProfile = () => {
 
       <View className="mb-5">
         <View className="form-group mt-6">
-          <Text style={{ color: textColor }}>
+          <Text style={{ color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'নামের প্রথম অংশ' : 'First Name' }
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -296,7 +296,7 @@ const EditProfile = () => {
         </View>  
 
         <View className="form-group mt-6">
-          <Text style={{ color: textColor }}>
+          <Text style={{ color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'নামের শেষাংশ' : 'Last Name' }
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -312,7 +312,7 @@ const EditProfile = () => {
         </View>  
 
         <View className="form-group mt-6">
-          <Text style={{ color: textColor }}>
+          <Text style={{ color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'জন্ম তারিখ' : 'Date of Birth' }
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -329,7 +329,7 @@ const EditProfile = () => {
         </View>  
 
         <View className="form-group mt-6">
-          <Text style={{ color: textColor }}>
+          <Text style={{ color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'লিঙ্গ' : 'Gender' }
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -350,10 +350,9 @@ const EditProfile = () => {
         </View>  
 
         <View className="form-group mt-6">
-          <Text style={{ color: textColor }}>
+          <Text style={{ color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'বৈবাহিক অবস্থা' : 'Marital Status' }
           </Text>
-
         
           <Dropdown 
             style={styles.dropdown}
@@ -371,7 +370,7 @@ const EditProfile = () => {
         </View>
 
         <View className="form-group mt-6">
-          <Text style={{ color: textColor }}>
+          <Text style={{ color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'পেশা' : 'Occupation' }
           </Text>
 
@@ -391,7 +390,7 @@ const EditProfile = () => {
         </View>        
         
         <View className="form-group mt-6">
-          <Text style={{ color: textColor }}>
+          <Text style={{ color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'দেশ' : 'Country' }
           </Text>
 
@@ -411,7 +410,7 @@ const EditProfile = () => {
         </View>      
 
         <View className="form-group mt-6">
-          <Text style={{ color: textColor }}>
+          <Text style={{ color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'শহর' : 'City' }
           </Text>
         
@@ -432,12 +431,12 @@ const EditProfile = () => {
       </View>
 
       <View className="mb-1">
-        <Text className="text-xl font-semibold" style={{ color: textColor }}>{ langMode == 'BN' ? 'যোগাযোগের তথ্য' : 'Contact Information' }</Text>
+        <Text className="text-xl font-semibold" style={{ color: textColor, marginBottom: 5 }}>{ langMode == 'BN' ? 'যোগাযোগের তথ্য' : 'Contact Information' }</Text>
       </View>
 
       <View className="mb-1">
         <View className="form-group mt-6">
-          <Text style={{ color: textColor }}>
+          <Text style={{ color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'ইমেইল' : 'Email' }
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -455,7 +454,7 @@ const EditProfile = () => {
         </View>  
 
         <View className="form-group mt-6">
-          <Text style={{ color: textColor }}>
+          <Text style={{ color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'ফোন' : 'Phone' }
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -474,11 +473,11 @@ const EditProfile = () => {
       </View>   
 
       <View className="mt-5">
-        <Text className="text-xl font-semibold" style={{ color: textColor }}>{ langMode == 'BN' ? 'পাসওয়ার্ড পরিবর্তন' : 'Password Change' }</Text>
+        <Text className="text-xl font-semibold" style={{ color: textColor, marginBottom: 5 }}>{ langMode == 'BN' ? 'পাসওয়ার্ড পরিবর্তন' : 'Password Change' }</Text>
       </View>   
 
         <View className="form-group mt-6">
-          <Text style={{ color: textColor }}>
+          <Text style={{ color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'বর্তমান পাসওয়ার্ড' : 'Current Password' }
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -494,7 +493,7 @@ const EditProfile = () => {
         </View>          
         
         <View className="form-group mt-6">
-          <Text style={{ color: textColor }}>
+          <Text style={{ color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'নতুন পাসওয়ার্ড' : 'New Password' }
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -510,7 +509,7 @@ const EditProfile = () => {
         </View>          
         
         <View className="form-group mt-6">
-          <Text style={{ color: textColor }}>
+          <Text style={{ color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'নতুন পাসওয়ার্ড পুনরায় টাইপ করুন' : 'Re Type New Password' }
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>

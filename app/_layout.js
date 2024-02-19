@@ -1,4 +1,4 @@
-import { Tabs } from 'expo-router';
+import { Tabs, useNavigation } from 'expo-router';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faThLarge } from '@fortawesome/free-solid-svg-icons';
 import { faBolt } from '@fortawesome/free-solid-svg-icons';
@@ -22,6 +22,7 @@ export default function Layout() {
         NotoSerifBold: require("../assets/font/NotoSerif-Bold.ttf"),
     });
 
+    
     const colorScheme = useColorScheme();
     const tabBarBg =
     colorScheme === 'light' ? 'white' : 'black';
@@ -29,7 +30,7 @@ export default function Layout() {
     if(!fontsLoaded ) {
         return null;
     }
-
+      
     return (
         <Provider>
             <Tabs
@@ -37,7 +38,6 @@ export default function Layout() {
                     tabBarStyle: [{
                         backgroundColor: tabBarBg,
                         borderTopColor: tabBarBg,
-                        paddingVertical: 10,
                     }]
                 }}
             >
@@ -45,6 +45,20 @@ export default function Layout() {
                     name="index"
                     options={{
                         href: null,
+                    }}
+                />  
+
+                <Tabs.Screen
+                    name="allCategory"
+                    options={{
+                        tabBarLabel: "Explore",
+                        tabBarIcon:  ({ focused }) => (
+                            <FontAwesomeIcon icon={faCompass} color={ focused ? "#f9020b" : "#666666" } />
+                        ),
+                        tabBarActiveTintColor: '#f9020b',
+                        tabBarLabelStyle: {
+                            marginBottom: 5,
+                        }
                     }}
                 />            
                 
@@ -54,12 +68,12 @@ export default function Layout() {
                         tabBarLabel: "News Feeds",
                         href: '/home',
                         tabBarIcon:  ({ focused }) => (
-                            <FontAwesomeIcon icon={faThLarge} color="#f9020b" />
+                            <FontAwesomeIcon icon={faThLarge} color={ focused ? "#f9020b" : "#666666" } />
                         ),
                         tabBarActiveTintColor: '#f9020b',
                         tabBarLabelStyle: {
                             marginBottom: 5,
-                        }
+                        }            
                     }}
                 />
 
@@ -96,41 +110,36 @@ export default function Layout() {
                     options={{
                         href: null,
                     }}
-                />        
-                
+                />                  
                 
                 <Tabs.Screen
                     name="todayNews"
                     options={{
-                        tabBarLabel: "Today Feeds",
-                        tabBarIcon:  ({ focused }) => (
-                            <FontAwesomeIcon icon={faBolt} color="#f9020b" />
-                        ),
-                        tabBarActiveTintColor: '#f9020b',
-                        tabBarLabelStyle: {
-                            marginBottom: 5,
-                        }
+                        href: null,
                     }}
-                />   
+                />        
+                
 
                 <Tabs.Screen
                     name="breaking"
                     options={{
                         href: null,
                     }}
-                />  
+                /> 
+                 
 
                 <Tabs.Screen
-                    name="allCategory"
+                    name="deals"
                     options={{
-                        tabBarLabel: "Explore",
+                        tabBarLabel: "Interests",
+                        href: '/login/interests',
                         tabBarIcon:  ({ focused }) => (
-                            <FontAwesomeIcon icon={faCompass} color="#f9020b" />
+                            <FontAwesomeIcon icon={faBolt} color={ focused ? "#f9020b" : "#666666" } />
                         ),
                         tabBarActiveTintColor: '#f9020b',
                         tabBarLabelStyle: {
                             marginBottom: 5,
-                        }
+                        },
                     }}
                 />   
 

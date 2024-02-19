@@ -1,8 +1,7 @@
-import { StyleSheet, Text, View, useColorScheme, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, useColorScheme, Image } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import axios from '../../api/axios'
 import { useAuth } from '../../context/auth'
-import ImageBlurLoading from 'react-native-image-blur-loading'
 import { images } from '../../constants'
 import moment from 'moment/min/moment-with-locales';
 import { Link } from 'expo-router'
@@ -10,6 +9,11 @@ import * as WebBrowser from 'expo-web-browser'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faClock } from '@fortawesome/free-solid-svg-icons';
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
+import { Skeleton } from 'moti/skeleton';
+// import { Image } from 'expo-image';
+
+const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
 const AllCategory = () => {
     const { user, langMode } = useAuth();
@@ -20,7 +24,8 @@ const AllCategory = () => {
     const bgCardColor = colorScheme === 'light' ? styles.cardContainerWhite : styles.cardContainerDark;
     const textColor = colorScheme === 'light' ? styles.textDark : styles.textWhite;
     const iconColor = colorScheme === 'light' ? '#131313' : 'white';
-    const containerColor = colorScheme === 'light' ? 'white' : 'black';
+    const containerColor = colorScheme === 'light' ? '#f8f8f8' : 'black';
+    const themeStyle = colorScheme === 'light' ? 'light' : 'dark';
 
     useEffect(() => {
         if (user?.token) {
@@ -31,9 +36,9 @@ const AllCategory = () => {
             };
             const getData = async() => {
                 try {
-                    await axios.get('/category-list', config)
+                    await axios.get('/hash-tags', config)
                     .then(res => {
-                        setCatItem(res.data);
+                        setCatItem(res.data.data);
                         setLoading(false);
                     });
                 } catch (e) {
@@ -46,112 +51,120 @@ const AllCategory = () => {
 
     const CardItems = ({ item }) => {
         return(
-            item.name ? (
-                <View key={item.key} data-id={item.id} style={[styles.cardContainer, bgCardColor]}>
-                    <Link href={`/categoryall/${item.slug}`}>
-                        <View className="relative overflow-hidden">
-                            { item?.category_image ?
-                                <>               
-                                    <ImageBlurLoading
-                                        thumbnailSource={images.placeholder}
-                                        source={{ uri: item.category_image  }} 
-                                        style={{ width: '100%', height: 125, aspectRatio: 4 / 3, resizeMode: 'cover' }}
-                                    />
-                                    <Text style={styles.counterBG}>{item.news}</Text>   
-                                </>  : 
-                                <>
-                                    <ImageBlurLoading
-                                        thumbnailSource={images.placeholder}
-                                        source={images.placeholder} 
-                                        style={{ width: '100%', height: 125, aspectRatio: 4 / 3, resizeMode: 'cover' }}
-                                    />
-                                    <Text style={styles.counterBG}>{item.news}</Text>   
-                                </>        
-                            }
+            <View key={item.key} data-id={item.id} style={[styles.cardContainer, { backgroundColor: item?.bg_color ? item.bg_color : 'white' }]}>
+                <Link href={`/categoryall/${item.slug}`}>
+                    <View className="relative">
+                        <View>
+                        { item?.image ?
+                            <>               
+                                <Image
+                                    src={ item.image } 
+                                    style={{ width: '100%', height: 80, aspectRatio: 3, resizeMode: "cover" }}
+                                />
+                                <Text style={styles.counterBG}>{item.summary[0].totalView}</Text>   
+                            </>  : 
+                            <>
+                                <Image
+                                    source={images.placeholder} 
+                                    style={{ width: '100%', height: 80, aspectRatio: 4 / 3 }}
+                                />
+                                <Text style={styles.counterBG}>{item.summary[0].totalView}</Text>   
+                            </>        
+                        }
                         </View>
+                    </View>
 
-                        <View className="text-info">
-                            <Text className="text-lg font-semibold mt-4" style={[styles.headingStyle, textColor]}>#{ langMode == 'BN' ? item.name_bn: item.name}</Text>
+                    <View className="p-3">
+                        <Text className="text-lg font-semibold" style={[styles.headingStyle, item?.bg_color ? textColor :  styles.textDark ]}>#{ langMode == 'BN' ? item.name_bn: item.name_en}</Text>
 
-                            <View className="flex flex-row mt-4 justify-between">
-                                <View className="flex flex-row content-center">
-                                    <View className="text-xl flex flex-row align-">
-                                        <FontAwesomeIcon icon={faClock} size={12} color={iconColor} style={{opacity: 0.7, marginTop: 2, marginRight: 1}} />
-                                        <Text style={[styles.metaTitle, textColor]}>{ langMode == 'BN' ? moment(new Date(item.created_at)).startOf('seconds').locale('bn-bd').fromNow() : moment(new Date(item.created_at)).startOf('seconds').locale("en").fromNow() }</Text>
-                                    </View>    
-                                    <View className="text-xl flex flex-row ml-1">
-                                        <FontAwesomeIcon icon={faClock} size={12} color={iconColor} style={{opacity: 0.7, marginTop: 2, marginRight: 2}} />
-                                        <Text style={[styles.metaTitle, textColor]}>{item.view}</Text>
-                                    </View>
-                                </View>
-
+                        <View className="flex flex-row mt-3 justify-between">
+                            <View>
+                                <View className="text-xl flex flex-row align-">
+                                    <FontAwesomeIcon icon={faClock} size={12} color={item?.bg_color ? iconColor : '#131313'} style={{opacity: 0.7, marginTop: 2, marginRight: 1}} />
+                                    <Text style={[styles.metaTitle, item?.bg_color ? textColor :  styles.textDark]}>{ langMode == 'BN' ? item.summary[0].latestHour : item.summary[0].latestHour }</Text>
+                                </View>    
+                            </View>
+                            
+                            <View>
                                 <View className="flex justify-items-end">
-                                    <FontAwesomeIcon icon={faArrowUp} size={13} color={iconColor} transform={{ rotate: 45 }} style={{marginLeft: 15}} />
+                                    <FontAwesomeIcon icon={faArrowUp} size={13} color={item?.bg_color ? iconColor : '#131313'} transform={{ rotate: 45 }} style={{marginLeft: 15}} />
                                 </View>
                             </View>
                         </View>
-                    </Link>
-                </View>
-            ) : (
-                ( item.placement_title === "Single Category") ? (
-                    <View key={item.key} data-id={item.id} style={[styles.cardContainer, bgCardColor]}>
-                        <TouchableOpacity onPress={() => item.action_url && WebBrowser.openBrowserAsync(item.action_url)}>
-                            <View className="relative">
-                                <ImageBlurLoading
-                                    thumbnailSource={images.placeholder}
-                                    source={{ uri: item.media[0].original_url  }} 
-                                    style={{ width: '100%', height: undefined, aspectRatio: 4 / 3 }}
-                                />
-                            </View>
-
-                            <View className="text-info flex flex-row">
-                                <View>
-                                    <Text style={styles.metaTitle} className="leading-normal">{item.button_title}</Text>
-                                    <FontAwesomeIcon icon={faClock} size={12} color={iconColor} style={{opacity: 0.7, marginTop: 2, marginRight: 1}} />
-                                </View>
-                                <View className="flex items-center justify-between">
-                                    <Text style={styles.metaTitle}>Sponsored by: {item.sponsor}</Text>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
                     </View>
-                ) : (
-                    <View key={item.key} data-id={item.id} style={[styles.cardContainer, bgCardColor]}>
-                        <TouchableOpacity onPress={() => item.action_url && WebBrowser.openBrowserAsync(item.action_url)}>
-                            <View className="relative">
-                                <ImageBlurLoading
-                                    thumbnailSource={images.placeholder}
-                                    source={{ uri: item.media[0].original_url  }} 
-                                    style={{ width: '100%', height: undefined, aspectRatio: 4 / 3 }}
-                                />
-                            </View>
-
-                            <View className="text-info flex flex-row">
-                                <View>
-                                    <Text style={styles.metaTitle} className="leading-normal">{item.button_title}</Text>
-                                    <FontAwesomeIcon icon={faClock} size={12} color={iconColor} style={{opacity: 0.7, marginTop: 2, marginRight: 1}} />
-                                </View>
-                                <View className="flex items-center justify-between">
-                                    <Text style={styles.metaTitle}>Sponsored by: {item.sponsor}</Text>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-                )
-            ) 
+                </Link>
+            </View>
         )
     };
 
+    const EmptyCards = () => {
+        return(
+            <Skeleton.Group show={true}>
+                <View style={{flexDirection: 'row', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10}}>
+                    <View style={{width: '48.5%'}}>
+                        <Skeleton colorMode={themeStyle}>
+                            <View>
+                                <Image
+                                    source={images.placeholder} 
+                                    style={{ width: '100%', height: 80, borderRadius: 10 }}
+                                />
+                                <Text>Lorem ipsum dolor sit amet consectetur</Text>
+                            </View>              
+                        </Skeleton>
+                    </View>      
+
+                    <View style={{width: '48.5%'}}>
+                        <Skeleton colorMode={themeStyle}>
+                            <View>
+                                <Image
+                                    source={images.placeholder} 
+                                    style={{ width: '100%', height: 80, aspectRatio: 4 / 3, resizeMode: 'cover', borderRadius: 10 }}
+                                />
+                                <Text>Lorem ipsum dolor sit amet consectetur</Text>
+                            </View>              
+                        </Skeleton>
+                    </View>
+
+                    <View style={{width: '48.5%'}}>
+                        <Skeleton colorMode={themeStyle}>
+                            <View>
+                                <Image
+                                    source={images.placeholder} 
+                                    style={{ width: '100%', height: 80, borderRadius: 10 }}
+                                />
+                                <Text>Lorem ipsum dolor sit amet consectetur</Text>
+                            </View>              
+                        </Skeleton>
+                    </View>      
+
+                    <View style={{width: '48.5%'}}>
+                        <Skeleton colorMode={themeStyle}>
+                            <View>
+                                <Image
+                                    source={images.placeholder} 
+                                    style={{ width: '100%', height: 80, aspectRatio: 4 / 3, resizeMode: 'cover', borderRadius: 10 }}
+                                />
+                                <Text>Lorem ipsum dolor sit amet consectetur</Text>
+                            </View>              
+                        </Skeleton>
+                    </View>
+                </View>
+            </Skeleton.Group>
+        );
+    }
+
+
     return (
-        <View className="flex flex-row flex-wrap" style={{ backgroundColor: containerColor }}>
-            {loading ? 
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color="#f9020b" />
-            </View> : null}
-            
-            { !loading && catItem?.map( (item, index) => (
-                <CardItems item={item} key={index} />
-            ) ) }
+        <View className="h-[calc(82vh)] flex-wrap p-5" style={{ backgroundColor: containerColor }}>            
+            { loading ? (
+                <EmptyCards />
+            ) : (
+                <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', gap: 10}}>
+                    { catItem?.map( (item, index) => (
+                        <CardItems item={item} key={index} />
+                    ) ) }
+                </View>             
+            ) }
         </View>
     )
 }
@@ -166,10 +179,10 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 4,
         elevation: 5, // Android shadow
-        padding: 10,
-        width: '44.85%',
-        margin: 10,
-        overflow: 'hidden'
+        padding: 0,
+        margin: 0,
+        overflow: 'hidden',
+        width: '48.5%'
     },
     cardContainerDark: {
         backgroundColor: '#272727',
@@ -188,8 +201,8 @@ const styles = StyleSheet.create({
         lineHeight: 25,
         overflow: 'hidden',
         position: 'absolute',
-        right: 10,
-        bottom: 10
+        left: 10,
+        top: 10
     },
     headingStyle: {
        marginBottom: -8,

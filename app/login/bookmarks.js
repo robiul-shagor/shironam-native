@@ -1,12 +1,12 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, ScrollView } from 'react-native'
 import React from 'react'
 import { BookmarkList, Footer } from '../../components'
 
 const Bookmarks = () => {
     return (
-        <>
+        <ScrollView showsVerticalScrollIndicator={false}>
             <BookmarkList />
-        </>
+        </ScrollView>
     )
 }
 

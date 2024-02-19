@@ -1,4 +1,4 @@
-import React, { useEffect, useState  } from 'react'
+import React, { useCallback, useEffect, useState, useMemo  } from 'react'
 import axios from '../api/axios'
 
 export default function NonUserQuery(query) {
@@ -7,25 +7,30 @@ export default function NonUserQuery(query) {
     const [news, setNews] = useState([])
 
     useEffect(() => {
-        setNews([])
+      setNews([])
     }, [query])
 
+    const fetchData = useCallback(async () => {
+      setNews( undefined );
+      try {
+        const response = await axios.get('/news-list-without-authentication', {});
+        const data = response.data.data;
+        
+        await new Promise(resolve => setTimeout(resolve, 5000));
+
+        setNews(data);
+        setLoading(false);
+      } catch (error) {
+        setError(true);
+      }
+    }, []);
+
+    
     useEffect(() => {
-        setLoading(true);
-        setError(false);
-    
-        const fetchData = async () => {
-          try {
-            const response = await axios.get('/news-list-without-authentication', {});
-            setNews(response.data.data);
-            setLoading(false);
-          } catch (error) {
-            setError(true);
-          }
-        };
-    
-        fetchData();
-    
+      setLoading(true);
+      setError(false);
+  
+      fetchData();
     }, [query]);
 
     return { loading, error, news }

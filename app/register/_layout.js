@@ -31,7 +31,7 @@ export default function RegisterLayout() {
             }} />
 
             <ScrollView showsVerticalScrollIndicator={false}>
-                <Slot style={{ backgroundColor: colorScheme === 'light' ? 'white' : '#272727' }} />
+                <Slot />
             </ScrollView>
         </SafeAreaView>
     </>

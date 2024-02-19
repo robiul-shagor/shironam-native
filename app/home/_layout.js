@@ -1,6 +1,7 @@
 import { Slot, Stack } from 'expo-router';
-import { SafeAreaView, useColorScheme } from 'react-native'
+import { SafeAreaView, useColorScheme, View } from 'react-native'
 import { HeaderLeft, HeaderMiddle, HeaderRight } from '../../components';
+import { ThemeProvider, DarkTheme, DefaultTheme, useTheme } from '@react-navigation/native';
 
 export default function HomeLayout() {
     const colorScheme = useColorScheme();
@@ -13,20 +14,16 @@ export default function HomeLayout() {
                     headerShadowVisible: true,
                     headerStyle: {
                         backgroundColor: colorScheme === 'light' ? 'white' : '#000000',
-                        height: 90,
+                        height: 95,
                     },
-                    headerLeft: () => (
-                        <HeaderLeft />
-                    ),    
                     headerRight: () => (
                         <HeaderRight />
                     ),
                     headerTitle: () => (
                         <HeaderMiddle />
-                    )
+                    ),
                 }} />
-                
-                <Slot style={{ backgroundColor: colorScheme === 'light' ? 'white' : '#272727' }} /> 
+                <Slot /> 
             </SafeAreaView>
         </>
     );

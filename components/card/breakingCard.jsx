@@ -1,9 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, RefreshControl, Alert, Share, Image, useColorScheme, Modal } from 'react-native'
 import React, { useState, useCallback, useRef } from 'react'
-import ImageBlurLoading from 'react-native-image-blur-loading'
 import UserQuery from '../../query/userQuery'
 import { images } from '../../constants'
-import * as WebBrowser from 'expo-web-browser';
 import moment from 'moment/min/moment-with-locales';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faClock } from '@fortawesome/free-solid-svg-icons';
@@ -15,6 +13,7 @@ import Footer from '../body/footer'
 import { Link } from 'expo-router'
 import { useAuth } from '../../context/auth'
 import { WebView } from 'react-native-webview';
+import axios from '../../api/axios';
 
 const BreakingCard = () => {
   const query = '';
@@ -114,15 +113,13 @@ const BreakingCard = () => {
         <View className={ item?.ads_image ? 'post-body ads' : 'post-body' }>
           {item?.ads_image || item.thumbnail ? (
             <>
-              <ImageBlurLoading
-                thumbnailSource={images.placeholder}
+              <Image
                 source={{ uri: item.ads_image || item.thumbnail }} // Use ads_image if available, otherwise use thumbnail
                 style={{ width: '100%', height: undefined, aspectRatio: 16 / 9 }}
               />
               { item?.news_vendor_logo && (
                 <View style={{ flex: 1, position: 'absolute', top: '110%', right: 0 }}>
-                  <ImageBlurLoading
-                    thumbnailSource={images.placeholder}
+                  <Image
                     source={{ uri: item.news_vendor_logo } }
                     style={{ flex: 1, width: 110, height: 20, resizeMode: 'contain', backgroundColor: 'white' }}
                   />
@@ -131,8 +128,7 @@ const BreakingCard = () => {
             </>
           ) : (
             <>
-              <ImageBlurLoading
-                thumbnailSource={images.placeholder}
+              <Image
                 source={images.placeholder} // Provide a default placeholder image source when both ads_image and thumbnail are empty
                 style={{ width: '100%', height: undefined, aspectRatio: 16 / 9 }}
               />
@@ -317,8 +313,13 @@ const BreakingCard = () => {
           <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}><Text style={{backgroundColor: 'red', color: 'white', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 5}}>{ langMode == 'BN' ? 'বন্ধ করুন' : 'Close' }</Text></TouchableOpacity>
         </View> 
         <WebView
-          source={{html: '<iframe width="100%" height="100%" src="'+ urlWeb +'" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>', headers: { 'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148' }}}
+          originWhitelist={['*']}
+          source={{uri: urlWeb }}
           style={{marginTop: 20, padding: 20}}
+          javaScriptEnabled={true}
+          userAgent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+          thirdPartyCookiesEnabled={true}
+          onError={(error) => console.error('WebView error:', error)}
         />
       </Modal>
     </>

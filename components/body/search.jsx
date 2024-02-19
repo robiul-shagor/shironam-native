@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, Keyboard, TouchableOpacity, ActivityIndicator, FlatList, useColorScheme } from 'react-native'
+import { StyleSheet, Text, View, TextInput, Keyboard, TouchableOpacity, ActivityIndicator, FlatList, useColorScheme, Image } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
@@ -12,7 +12,6 @@ import { useAuth } from '../../context/auth';
 import axios from '../../api/axios';
 import * as WebBrowser from 'expo-web-browser';
 import moment from 'moment/min/moment-with-locales';
-import ImageBlurLoading from 'react-native-image-blur-loading'
 import { images } from '../../constants';
 import { Link } from 'expo-router';
 import Footer from './footer';
@@ -120,16 +119,14 @@ const Search = () => {
           <View className={ item?.ads_image ? 'post-body ads' : 'post-body' }>
             {item?.ads_image || item.thumbnail ? (
               <TouchableOpacity onPress={() => item.action_url && WebBrowser.openBrowserAsync( item?.ads_image ? item.action_url : item.source )}>
-                <ImageBlurLoading
-                  thumbnailSource={images.placeholder}
+                <Image
                   source={{ uri: item.ads_image || item.thumbnail }} // Use ads_image if available, otherwise use thumbnail
                   style={{ width: '100%', height: undefined, aspectRatio: 16 / 9 }}
                 />
               </TouchableOpacity>
             ) : (
               <TouchableOpacity onPress={() => item.source && WebBrowser.openBrowserAsync(item.source) }>
-                <ImageBlurLoading
-                  thumbnailSource={images.placeholder}
+                <Image
                   source={images.placeholder} // Provide a default placeholder image source when both ads_image and thumbnail are empty
                   style={{ width: '100%', height: undefined, aspectRatio: 16 / 9 }}
                 />

@@ -63,7 +63,7 @@ const CategoriesPage = () => {
     }, [])
 
     return (
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
             <View style={ [styles.parentContainer, bgStyle] }>
                 {data.map((section, index) => (
                 <View key={index} style={[styles.mainAccordian, borderStyle]}>

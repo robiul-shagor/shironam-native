@@ -15,11 +15,9 @@ export default function CategoryAllPage() {
 
     const colorScheme = useColorScheme();
 
-    
-
     return(
         <>
-            <SafeAreaView>
+            <SafeAreaView style={{backgroundColor: colorScheme === 'light' ? '#f8f8f8' : '#000000'}}>
                 <Stack.Screen 
                     options={{
                         headerTitle: formattedTitle,

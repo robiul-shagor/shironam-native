@@ -20,7 +20,7 @@ const Register = () => {
   const { registerData, langMode } = useAuth();
 
   const colorScheme = useColorScheme();
-  const bgColor = colorScheme === 'light' ? 'white' : '#272727'; 
+  const bgColor = colorScheme === 'light' ? '#f7f7f7' : '#272727'; 
   const textColor = colorScheme === 'light' ? '#191919' : 'white'; 
 
   const handleRegistration = async() => {
@@ -45,7 +45,7 @@ const Register = () => {
   }
 
   return (
-    <View className="flex-1 items-center justify-center py-10" style={{backgroundColor: bgColor}}>
+    <View className="px-5 py-10" style={{backgroundColor: bgColor}}>
       <View className="form-title">
         <Text className="text-2xl font-semibold mb-2 leading-none text-center" style={{color: textColor}}>
           { langMode == 'BN' ? 'একটি অ্যাকাউন্ট তৈরি করুন' : 'Create an account'}
@@ -55,7 +55,7 @@ const Register = () => {
         </Text>
 
         <View className="form-group mt-6">
-          <Text style={{color: textColor}}>
+          <Text style={{color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'নামের প্রথম অংশ' : 'First Name'}
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -72,7 +72,7 @@ const Register = () => {
         </View>    
 
         <View className="form-group mt-6">
-          <Text style={{color: textColor}}>
+          <Text style={{color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'নামের শেষাংশ' : 'Last Name'}
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -89,7 +89,7 @@ const Register = () => {
         </View>    
 
         <View className="form-group mt-6">
-          <Text style={{color: textColor}}>
+          <Text style={{color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'ফোন' : 'Phone'}
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -107,7 +107,7 @@ const Register = () => {
         </View> 
 
         <View className="form-group mt-6">
-          <Text style={{color: textColor}}>
+          <Text style={{color: textColor, marginBottom: 5 }}>
             {langMode == 'BN' ? 'ইমেইল' : 'Email Address'}
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -126,7 +126,7 @@ const Register = () => {
         </View>          
         
         <View className="form-group mt-6">
-          <Text style={{color: textColor}}>
+          <Text style={{color: textColor, marginBottom: 5 }}>
             {langMode == 'BN' ? 'পাসওয়ার্ড' : 'Password'}
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>
@@ -142,7 +142,7 @@ const Register = () => {
         </View>
 
         <View className="form-group mt-6">
-          <Text style={{color: textColor}}>
+          <Text style={{color: textColor, marginBottom: 5 }}>
             { langMode == 'BN' ? 'পাসওয়ার্ড নিশ্চিত করুন' : 'Confirm Password'}
             <Text style={{ color: '#ff0000' }}>*</Text>
           </Text>

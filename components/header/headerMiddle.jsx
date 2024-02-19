@@ -19,7 +19,7 @@ const HeaderMiddle = () => {
             <Image 
                 source={logoElement}
                 resizeMode='contain'
-                style={{ width: 100, height: 45, marginBottom: 15 }}
+                style={{ width: 100, height: 45, marginBottom: 0 }}
             />
         </TouchableOpacity>
     )

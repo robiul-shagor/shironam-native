@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, useColorScheme } from 'react-native'
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, useColorScheme, ScrollView } from 'react-native'
 import React, { useState } from 'react'
 import axios from '../../api/axios';
 import { useRouter } from 'expo-router';
@@ -45,61 +45,63 @@ const ForgetPassBody = () => {
     };
 
     return (
-        <View className="flex-1 px-10 py-10 h-screen" style={{backgroundColor: bgColor}}>
-            <View className="form-title">
-                <Text className="text-2xl font-semibold mb-2 leading-none text-center" style={{color: textColor}}>
-                    { langMode == 'BN' ? 'পাসওয়ার্ড পুনরুদ্ধার করুন' : 'Recover Password' }
-                </Text>
-                <Text className="text-black text-center" style={{color: textColor}}>
-                    { langMode == 'BN' ? 'আপনি যে ইমেল ঠিকানা ব্যবহার করেছেন তা লিখুন।' : 'Enter email address that you used.' }
-                </Text>
-    
-                <View className="form-group mt-6">
-                    <Text style={{color: textColor}}>
-                    {langMode == 'BN' ? 'ইমেইল' : 'Email Address'}
-                    <Text style={{ color: '#ff0000' }}>*</Text>
+        <ScrollView>
+            <View className="flex-1 px-10 py-10 h-screen" style={{backgroundColor: bgColor}}>
+                <View className="form-title">
+                    <Text className="text-2xl font-semibold mb-2 leading-none text-center" style={{color: textColor}}>
+                        { langMode == 'BN' ? 'পাসওয়ার্ড পুনরুদ্ধার করুন' : 'Recover Password' }
+                    </Text>
+                    <Text className="text-black text-center" style={{color: textColor}}>
+                        { langMode == 'BN' ? 'আপনি যে ইমেল ঠিকানা ব্যবহার করেছেন তা লিখুন।' : 'Enter email address that you used.' }
                     </Text>
         
-                    <TextInput
-                        className="form-control bg-white dark:bg-[#272727] dark:text-white shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
-                        value={email}
-                        onChangeText={setEmail}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        required
-                    />
-
-                    {typeof error.email !== 'undefined' && <Text className="error">{error.email}</Text>}
-                </View>       
-
-                { status == "Error" && (
-                    <View><Text>{message}</Text></View>
-                ) }   
-            
-                <View className="form-group mt-6">
-                    <TouchableOpacity
-                    onPress={handleResetPass}
-                    disabled={processing}
-                    style={{
-                        backgroundColor: 'black',
-                        padding: 10,
-                        borderRadius: 5,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                    >
-                    { processing ? (
-                        <ActivityIndicator color="white" />
-                    ) : (
-                        <Text style={{ color: 'white' }}>
-                            {langMode == 'BN' ? 'লিঙ্ক পাঠান' : ' Send Link'}
+                    <View className="form-group mt-6">
+                        <Text style={{color: textColor}}>
+                        {langMode == 'BN' ? 'ইমেইল' : 'Email Address'}
+                        <Text style={{ color: '#ff0000' }}>*</Text>
                         </Text>
-                    )}
-                    </TouchableOpacity>
+            
+                        <TextInput
+                            className="form-control bg-white dark:bg-[#272727] dark:text-white shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+                            value={email}
+                            onChangeText={setEmail}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            required
+                        />
+
+                        {typeof error.email !== 'undefined' && <Text className="error">{error.email}</Text>}
+                    </View>       
+
+                    { status == "Error" && (
+                        <View><Text>{message}</Text></View>
+                    ) }   
+                
+                    <View className="form-group mt-6">
+                        <TouchableOpacity
+                        onPress={handleResetPass}
+                        disabled={processing}
+                        style={{
+                            backgroundColor: 'black',
+                            padding: 10,
+                            borderRadius: 5,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                        >
+                        { processing ? (
+                            <ActivityIndicator color="white" />
+                        ) : (
+                            <Text style={{ color: 'white' }}>
+                                {langMode == 'BN' ? 'লিঙ্ক পাঠান' : ' Send Link'}
+                            </Text>
+                        )}
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
-        </View>
+        </ScrollView>
     )
 }
 

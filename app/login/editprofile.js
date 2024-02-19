@@ -4,7 +4,7 @@ import { EditProfile, Footer } from '../../components'
 
 const Editprofile = () => {
     return (
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
             <EditProfile />
             <Footer />
         </ScrollView>
